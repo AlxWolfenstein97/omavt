@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Thin launcher so menu actions can call omavt-* by name.
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export OMAVT_PLUGIN_DIR="${OMAVT_PLUGIN_DIR:-$(cd "$here/.." && pwd)}"
+exec python3 "$OMAVT_PLUGIN_DIR/lib/omavt.py" "$@"

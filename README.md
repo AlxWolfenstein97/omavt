@@ -1,0 +1,133 @@
+# OmaVT
+
+**Omarchy themes your desktop. OmaVT carries the same palette into the virtual
+console — VT-session mockups in the Style menu, then `vt.default_*` on the
+kernel command line.**
+
+![OmaVT — Hackerman TTY session mockup with VT palette strip](preview.png)
+
+## Why a TTY theme picker
+
+Stock Omarchy paints Hyprland, graphical terminals, Plymouth unlock, and (with
+OmaBoot) the Limine menu. Drop to Ctrl+Alt+F3 after a bad splash, a single-GPU
+passthrough VM hop, or just because you like living on `/dev/tty*`, and you get
+classic VGA grey. Your desktop wears Vantablack or Hackerman; the console still
+looks like 1987.
+
+OmaVT closes that gap so the **same colours** show up when:
+
+- Plymouth has been tinkered into an early quit and you land on a text prompt
+- You leave a VFIO / VM-curator machine and the TTY hops you back toward SDDM
+- You want big Terminus faces (OmaTTY) *and* a theme palette that matches boot
+  and unlock — cohesive from Limine → Plymouth → getty → desktop
+- Something like `cliamp` is whipping the console and you still want it pretty
+
+Pair with [OmaTTY](https://github.com/AlxWolfenstein97/omatty) for font size /
+accessibility; OmaVT is the palette half of that story.
+
+## Goals (and honest limits)
+
+These Style plugins extend Omarchy’s theme system **without requiring theme
+authors — or you — to ship anything extra**. Official themes, your forks, and
+third-party installs all work as long as they have a `colors.toml`.
+
+| Goal | What that means here |
+|------|----------------------|
+| Zero extra assets | No `preview-tty.png`, no per-theme VT files. Colours come from `colors.toml` alone. |
+| Extreme compatibility | Stock + user + foreign themes all appear in the picker automatically. |
+| Illustrative mockups | Centered fake `/dev/tty` session + 16-colour strip. **Not** a live VT screenshot and **not** WYSIWYG. |
+| Carousel-safe | Mockups match the Style tile aspect (~768×475) so edge text is not cropped. |
+| Slow pickers are OK | Warming ~20+ PNGs takes a moment; that is the cost of generating previews instead of bundling assets. |
+
+True WYSIWYG would need extra art (or a headless VT capture) per theme — that
+narrows the scope we refuse to narrow. Plymouth Unlock looks “real” because
+Omarchy already ships unlock chrome per theme; Limine / TTY / OBS do not, so we
+draw honest mockups from the palette instead.
+
+## What you get
+
+- **Style → TTY Themes** — labelled image picker (`omarchy-menu-images`).
+- **Live theme discovery** — every Omarchy theme with a `colors.toml`.
+- **Default tile** — stock VGA. Picking it **removes only** the OmaVT colour
+  drop-in so you can switch back without rewriting anything else.
+- **Safe cmdline patch** — one file,
+  `/etc/limine-entry-tool.d/omavt-colors.conf`, appending
+  `vt.default_red` / `vt.default_grn` / `vt.default_blu` / `vt.color`.
+  `/etc/default/limine` (your `intel_iommu=on`, `iommu=pt`, root=, …) and
+  `omarchy-defaults.conf` are never opened, never restored.
+- **Live try** — `setvtrgb` when available; cold consoles need a reboot for the
+  cmdline to stick.
+- **No theme-set hook** — applying needs a password; pick when you mean it.
+
+## Install
+
+```sh
+omarchy plugin add https://github.com/AlxWolfenstein97/omavt.git --enable
+```
+
+That clones into `~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt`.
+Or from a checkout:
+
+```sh
+~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/install.sh
+omarchy plugin enable io.github.alxwolfenstein97.omavt
+```
+
+**Needs:** Limine entry-tool drop-ins (`/etc/limine-entry-tool.d/`),
+`limine-update`, Omarchy’s image picker, Python 3 with Pillow
+(`python-pillow`), `kbd` (`setvtrgb`), and sudo for apply.
+
+## How it works
+
+1. `bin/omavt-switcher` renders PNG mockups into
+   `~/.cache/omarchy/omavt/previews/` (including `default.png`), then opens
+   `omarchy-menu-images`.
+2. On selection, Style launches a floating terminal running `omavt-set`
+   (same privilege pattern as Unlock).
+3. A themed pick writes `/etc/limine-entry-tool.d/omavt-colors.conf` and runs
+   `limine-update`. **Default** deletes that file only — it does not restore
+   stock Omarchy cmdline snippets.
+4. `setvtrgb` applies the palette live when possible.
+
+CLI:
+
+```sh
+omavt list
+omavt preview              # warm all mockups
+omavt switcher             # picker → prints slug
+omavt show tokyo-night     # print managed drop-in
+omavt set tokyo-night      # write drop-in (sudo)
+omavt set default          # remove colour drop-in only
+omavt set tokyo-night --dry-run
+omavt current
+```
+
+## Remove
+
+```sh
+~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/uninstall.sh
+omarchy plugin disable io.github.alxwolfenstein97.omavt
+omarchy plugin remove io.github.alxwolfenstein97.omavt
+```
+
+Uninstall removes the menu row and cache/state. It does **not** delete
+`omavt-colors.conf` — pick **Default** (or `omavt set default`) if you want
+the colour block gone.
+
+## Check
+
+```sh
+bash ~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/check.sh
+```
+
+## Credits
+
+- Sibling Style plugins: [OmaBoot](https://github.com/AlxWolfenstein97/omaboot),
+  [OmaTTY](https://github.com/AlxWolfenstein97/omatty),
+  [OmaOBS](https://github.com/AlxWolfenstein97/omaobs).
+- [Omarchy](https://omarchy.org/) — Style → Unlock pattern, theme colours, and
+  Limine entry-tool drop-ins this plugin appends carefully.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
