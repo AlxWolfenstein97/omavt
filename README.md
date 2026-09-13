@@ -36,7 +36,7 @@ third-party installs all work as long as they have a `colors.toml`.
 | Zero extra assets | No `preview-tty.png`, no per-theme VT files. Colours come from `colors.toml` alone. |
 | Extreme compatibility | Stock + user + foreign themes all appear in the picker automatically. |
 | Illustrative mockups | Centered fake `/dev/tty` session + 16-colour strip. **Not** a live VT screenshot and **not** WYSIWYG. |
-| Carousel-safe | Mockups match the Style tile aspect (~768×475) so edge text is not cropped. |
+| Carousel-safe | Mockups are 1536×864 (menu-images thumbnail size) with ~8% side inset so the 768×475 tile crop does not shave the subject. |
 | Slow pickers are OK | Warming ~20+ PNGs takes a moment; that is the cost of generating previews instead of bundling assets. |
 
 True WYSIWYG would need extra art (or a headless VT capture) per theme — that

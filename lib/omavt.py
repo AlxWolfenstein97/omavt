@@ -507,9 +507,13 @@ def rebuild_limine() -> None:
         raise RuntimeError(f"limine-update failed: {err}")
 
 
-# Style carousel selected tile is 768×475 (~1.62). Render at 2× so
-# PreserveAspectCrop does not shave left/right the way 16:9 sources do.
-MOCKUP_SIZE = (1536, 950)
+# omarchy-menu-images thumbnails every source to 1536×864 (16:9) with
+# smartcrop BEFORE the Style carousel shows it in a 768×475 tile. Matching
+# that size avoids a second crop; keep content inside ~8% side margins so
+# PreserveAspectCrop on the tile does not shave the subject.
+MOCKUP_SIZE = (1536, 864)
+# Horizontal inset that survives 16:9 → ~1.62 tile crop (plus a little slack).
+SAFE_X = 120
 
 
 def try_font(size: int) -> ImageFont.ImageFont:
@@ -536,12 +540,11 @@ def render_mockup(
 ) -> Path:
     """Fake /dev/tty session wearing the theme (or VGA default) palette.
 
-    Centered composition for the Style carousel — no edge chrome, no Plymouth
-    unlock assets. Theme name lives in the picker label, not the image.
+    Generic prompts only — no real username, home paths, or kernel strings.
+    Theme name lives in the picker label, not the image.
     """
     w, h = size
     ansi: list[tuple[int, int, int]] = palette["ansi"]
-    # Colour 0 is the console background under vt.color=0x07.
     bg = rgb_to_hex(ansi[0])
     fg = rgb_to_hex(ansi[7])
     bright = rgb_to_hex(ansi[15])
@@ -555,79 +558,73 @@ def render_mockup(
     img = Image.new("RGB", size, hex_to_rgb(bg))
     draw = ImageDraw.Draw(img)
 
-    mono = try_font(28)
-    mono_sm = try_font(22)
+    mono = try_font(26)
+    mono_sm = try_font(20)
 
-    # Centre a VT pane — everything important stays inside the tile safe zone.
-    pad_x, pad_y = 120, 90
-    term = (pad_x, pad_y, w - pad_x, h - pad_y - 110)
+    pad_x, pad_y = SAFE_X, 64
+    term = (pad_x, pad_y, w - pad_x, h - pad_y - 96)
     draw.rectangle(term, outline=hex_to_rgb(muted), width=2)
 
-    user = os.environ.get("USER", "alex")
-    host = "omarchy"
     lines: list[tuple[str, str]] = [
-        (f"{host} login: {user}", bright),
+        ("omarchy login: user", bright),
         ("Password: ********", fg),
         ("", fg),
-        (f"Linux {host} 6.17.0-arch1-1 #1 SMP PREEMPT_DYNAMIC x86_64", muted),
+        ("Last login: on tty3", muted),
         ("", fg),
-        (f"{user}@{host} ~", green),
-        ("> ls Documents Downloads Work Music Pictures", fg),
-        ("Documents  Downloads  Work  Music  Pictures", cyan),
-        (f"{user}@{host} ~", green),
-        ("> uname -r && tty", fg),
-        ("6.17.0-arch1-1", fg),
+        ("user@omarchy ~", green),
+        ("> ls", fg),
+        ("Documents  Downloads  Projects  Music  Pictures", cyan),
+        ("user@omarchy ~", green),
+        ("> tty && echo ready", fg),
         ("/dev/tty3", yellow),
-        (f"{user}@{host} ~", green),
+        ("ready", fg),
+        ("user@omarchy ~", green),
         ("> ", fg),
     ]
     if palette.get("is_default"):
         lines = [
-            (f"{host} login: {user}", bright),
+            ("omarchy login: user", bright),
             ("Password: ********", fg),
             ("", fg),
             ("stock VGA palette — Default removes omavt colours only", muted),
             ("", fg),
-            (f"{user}@{host} ~", green),
+            ("user@omarchy ~", green),
             ("> # pick a theme tile to append vt.default_*", fg),
-            (f"{user}@{host} ~", green),
+            ("user@omarchy ~", green),
             ("> ", fg),
         ]
 
-    # Clip session text inside the pane (TTY crop, not compositor zoom).
     term_w = term[2] - term[0] - 32
     term_h = term[3] - term[1] - 32
     layer = Image.new("RGB", (term_w, term_h), hex_to_rgb(bg))
     layer_draw = ImageDraw.Draw(layer)
-    line_h = 36
+    line_h = 34
     for index, (text, color) in enumerate(lines):
-        y = 8 + index * line_h
+        y = 6 + index * line_h
         if y + line_h > term_h:
             break
         layer_draw.text((8, y), text, font=mono, fill=hex_to_rgb(color))
-    # Blinking-ish block cursor after the last prompt
-    cursor_y = 8 + (len(lines) - 1) * line_h
+    cursor_y = 6 + (len(lines) - 1) * line_h
     if cursor_y + line_h <= term_h:
-        layer_draw.rectangle((8 + 28, cursor_y + 4, 8 + 48, cursor_y + 28), fill=hex_to_rgb(fg))
+        layer_draw.rectangle((8 + 28, cursor_y + 4, 8 + 46, cursor_y + 26), fill=hex_to_rgb(fg))
     img.paste(layer, (term[0] + 16, term[1] + 16))
 
-    # Centered 16-colour strip — palette is the point of this picker.
-    strip_y = h - 88
-    cell_w = 72
+    strip_y = h - 78
+    cell_w = 68
     total = cell_w * 16
     x0 = (w - total) // 2
+    # Keep strip inside SAFE_X even if cell math drifts.
+    x0 = max(SAFE_X, min(x0, w - SAFE_X - total))
     for index, rgb in enumerate(ansi):
         cx = x0 + index * cell_w
-        draw.rectangle((cx + 4, strip_y, cx + cell_w - 4, strip_y + 48), fill=rgb)
-        # Tiny index using contrasting ink
+        draw.rectangle((cx + 3, strip_y, cx + cell_w - 3, strip_y + 44), fill=rgb)
         ink = ansi[0] if (rgb[0] + rgb[1] + rgb[2]) > 380 else ansi[15]
-        draw.text((cx + 10, strip_y + 12), f"{index:X}", font=mono_sm, fill=ink)
+        draw.text((cx + 8, strip_y + 10), f"{index:X}", font=mono_sm, fill=ink)
 
-    # Corner accents so red/magenta/yellow read without edge labels.
     for color, box in (
-        (red, (term[0] + 8, term[1] + 8, term[0] + 20, term[1] + 20)),
-        (yellow, (term[0] + 28, term[1] + 8, term[0] + 40, term[1] + 20)),
-        (magenta, (term[0] + 48, term[1] + 8, term[0] + 60, term[1] + 20)),
+        (red, (term[0] + 8, term[1] + 8, term[0] + 18, term[1] + 18)),
+        (yellow, (term[0] + 26, term[1] + 8, term[0] + 36, term[1] + 18)),
+        (magenta, (term[0] + 44, term[1] + 8, term[0] + 54, term[1] + 18)),
     ):
         draw.ellipse(box, fill=hex_to_rgb(color))
 
@@ -646,6 +643,12 @@ def generate_preview(slug: str) -> Path:
 
 
 def bust_image_picker_cache(preview_root: Path) -> None:
+    """Invalidate omarchy-menu-images rows/thumbnails for our preview dir."""
+    try:
+        os.utime(preview_root, None)
+    except OSError:
+        pass
+
     cache_dir = Path(
         os.environ.get(
             "OMAVT_IMAGE_SELECTOR_CACHE",
@@ -654,6 +657,7 @@ def bust_image_picker_cache(preview_root: Path) -> None:
     )
     if not cache_dir.is_dir():
         return
+
     needle = str(preview_root.resolve())
     for path in cache_dir.iterdir():
         name = path.name
@@ -670,6 +674,26 @@ def bust_image_picker_cache(preview_root: Path) -> None:
             continue
         if needle in text or str(preview_root) in text:
             path.unlink(missing_ok=True)
+
+    index = cache_dir / "index.tsv"
+    if index.is_file():
+        try:
+            lines = index.read_text(encoding="utf-8", errors="ignore").splitlines()
+        except OSError:
+            lines = []
+        kept: list[str] = []
+        for line in lines:
+            parts = line.split("\t")
+            if parts and (needle in parts[0] or str(preview_root) in parts[0]):
+                if len(parts) >= 3:
+                    (cache_dir / f"{parts[2]}.jpg").unlink(missing_ok=True)
+                    (cache_dir / f"{parts[2]}.jpg.lock").unlink(missing_ok=True)
+                continue
+            kept.append(line)
+        try:
+            atomic_write(index, ("\n".join(kept) + ("\n" if kept else "")))
+        except OSError:
+            pass
 
 
 def generate_all_previews() -> list[Path]:
