@@ -44,6 +44,14 @@ narrows the scope we refuse to narrow. Plymouth Unlock looks “real” because
 Omarchy already ships unlock chrome per theme; Limine / TTY / OBS do not, so we
 draw honest mockups from the palette instead.
 
+### Why a picker (and no theme-set hook)?
+
+VT colours hitch a ride on the kernel cmdline and want a password — not a
+silent sync on every desktop theme flip. The carousel exists so you can preview
+the console palette across **all** installed themes without rebooting for each
+guess. Pair with OmaTTY for fonts; same preview-first pattern as OmaBoot /
+OmaOBS.
+
 ## What you get
 
 - **Style → TTY Themes** — labelled image picker (`omarchy-menu-images`).
