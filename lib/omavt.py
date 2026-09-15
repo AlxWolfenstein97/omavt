@@ -507,11 +507,12 @@ def rebuild_limine() -> None:
         raise RuntimeError(f"limine-update failed: {err}")
 
 
-# omarchy-menu-images thumbnails every source to 1536×864 (16:9). Current TTY
-# chrome is top-left (real getty), so side crop barely matters; colour strip
-# stays centered at the bottom.
+# omarchy-menu-images serves 1536×864 then crops to a 768×475 tile
+# (PreserveAspectCrop — shaves the sides). Keep session + strip inside ~8%
+# horizontal margins so the carousel does not eat the getty text.
 MOCKUP_SIZE = (1536, 864)
-SAFE_X = 48
+SAFE_X = 120
+SAFE_Y = 56
 
 
 def tty_banner(tty: str = "tty1") -> str:
@@ -553,7 +554,8 @@ def render_mockup(
     Layout tracked from a default dark TTY QEMU capture (getty on tty1 after
     SDDM off — nested Omarchy cannot Ctrl+Alt+F3). Same session script as
     OmaTTY: login as wolf, then the single-GPU passthrough starter. Not a
-    live VT framebuffer capture.
+    live VT framebuffer capture. Content stays inside SAFE_X for the Style
+    carousel crop.
     """
     w, h = size
     ansi: list[tuple[int, int, int]] = palette["ansi"]
@@ -569,31 +571,39 @@ def render_mockup(
     mono = try_font(26)
     mono_sm = try_font(18)
 
-    # Real console is top-left, not a centered card.
-    origin_x, origin_y = 28, 28
+    # Top-left like real getty, but inset so side crop does not shave glyphs.
+    origin_x, origin_y = SAFE_X, SAFE_Y
     line_h = 34
+    max_x = w - SAFE_X
 
     # Keep session lines in sync with OmaTTY (sibling Style plugin).
     banner = tty_banner("tty1")
     prompt = "~ > "
     command = "sudo /home/wolf/vm-space/windows-11/single-gpu-start.sh"
 
+    def draw_clipped(x: int, y: int, text: str, fill: tuple[int, int, int], font: ImageFont.ImageFont) -> None:
+        # Drop characters that would paint past the right safe edge.
+        while text and x + int(draw.textlength(text, font=font)) > max_x:
+            text = text[:-1]
+        if text:
+            draw.text((x, y), text, font=font, fill=fill)
+
     y = origin_y
-    draw.text((origin_x, y), banner, font=mono, fill=bright)
+    draw_clipped(origin_x, y, banner, bright, mono)
     y += line_h
-    draw.text((origin_x, y), "omarchy login: wolf", font=mono, fill=fg)
+    draw_clipped(origin_x, y, "omarchy login: wolf", fg, mono)
     y += line_h
-    draw.text((origin_x, y), "Password:", font=mono, fill=fg)
+    draw_clipped(origin_x, y, "Password:", fg, mono)
     y += line_h
-    draw.text((origin_x, y), prompt, font=mono, fill=cyan)
+    draw_clipped(origin_x, y, prompt, cyan, mono)
     prompt_w = int(draw.textlength(prompt, font=mono))
-    draw.text((origin_x + prompt_w, y), command, font=mono, fill=fg)
+    draw_clipped(origin_x + prompt_w, y, command, fg, mono)
     y += line_h
     draw.rectangle((origin_x, y + 4, origin_x + 14, y + line_h - 6), fill=fg)
 
     if palette.get("is_default"):
         note = "stock VGA — Default removes omavt colours only"
-        draw.text((origin_x, y + line_h + 8), note, font=mono_sm, fill=muted)
+        draw_clipped(origin_x, y + line_h + 8, note, muted, mono_sm)
 
     strip_y = h - 72
     cell_w = 68

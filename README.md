@@ -39,7 +39,7 @@ making *another* theme is more worth it. Longer origin / stop-line:
 | Zero extra assets | No `preview-tty.png`, no per-theme VT files. Colours come from `colors.toml` alone. |
 | Extreme compatibility | Stock + user + foreign themes all appear in the picker automatically. |
 | True Theme Vibe | Top-left getty session + 16-colour strip from `colors.toml` / VGA Default. **Much closer** to a real TTY than a framed fake window — still not a live `/dev/tty` capture. |
-| Carousel-safe | Mockups are 1536×864. Session is top-left like real getty; the 768×475 tile crop mostly shaves empty sides. |
+| Carousel-safe | Mockups are 1536×864 with ~8% side inset (SAFE_X=120). Session stays top-left *inside* that margin so the 768×475 tile crop does not shave getty text. |
 | Slow pickers are OK | Warming ~20+ PNGs takes a moment; that is the cost of generating previews instead of bundling assets. |
 
 We are **not** putting WYSIWYG screenshots in themes. Themes stay palette-only;
