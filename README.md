@@ -38,14 +38,13 @@ making *another* theme is more worth it. Longer origin / stop-line:
 |------|----------------------|
 | Zero extra assets | No `preview-tty.png`, no per-theme VT files. Colours come from `colors.toml` alone. |
 | Extreme compatibility | Stock + user + foreign themes all appear in the picker automatically. |
-| Illustrative mockups | Centered fake `/dev/tty` session + 16-colour strip. **Not** a live VT screenshot and **not** WYSIWYG. |
-| Carousel-safe | Mockups are 1536×864 (menu-images thumbnail size) with ~8% side inset so the 768×475 tile crop does not shave the subject. |
+| True Theme Vibe | Top-left getty session + 16-colour strip from `colors.toml` / VGA Default. **Much closer** to a real TTY than a framed fake window — still not a live `/dev/tty` capture. |
+| Carousel-safe | Mockups are 1536×864. Session is top-left like real getty; the 768×475 tile crop mostly shaves empty sides. |
 | Slow pickers are OK | Warming ~20+ PNGs takes a moment; that is the cost of generating previews instead of bundling assets. |
 
-True WYSIWYG would need extra art (or a headless VT capture) per theme — that
-narrows the scope we refuse to narrow. Plymouth Unlock looks “real” because
-Omarchy already ships unlock chrome per theme; Limine / TTY / OBS do not, so we
-draw honest mockups from the palette instead.
+We are **not** putting WYSIWYG screenshots in themes. Themes stay palette-only;
+OmaVT draws the session itself. Same True Theme Vibe idea as
+[OmaBoot](https://github.com/AlxWolfenstein97/omaboot).
 
 ### Why a picker (and no theme-set hook)?
 
@@ -69,6 +68,33 @@ OmaOBS.
 - **Live try** — `setvtrgb` when available; cold consoles need a reboot for the
   cmdline to stick.
 - **No theme-set hook** — applying needs a password; pick when you mean it.
+
+## Mockups: True Theme Vibe (shared session with OmaTTY)
+
+Limine / TTY have no headless renderer worth depending on, and themes will not
+ship console screenshots. The drawer paints one getty session, then recolours
+it from each theme’s palette (plus a VGA **Default** tile).
+
+**How it was done**
+
+1. Nested Omarchy-in-Omarchy QEMU cannot Ctrl+Alt+F3 (no GPU passthrough — that
+   hops the **host**). Disable SDDM in the guest, land on **tty1**, log in as
+   a demo user, run the single-GPU passthrough starter path.
+2. Trace that chrome in Pillow: top-left banner / login / `~ >` command, block
+   cursor, 16-colour strip at the bottom. Same session script as
+   [OmaTTY](https://github.com/AlxWolfenstein97/omatty) (fonts use real PSF
+   glyphs on the same lines).
+3. Recolour from every installed theme’s `colors.toml`. Themes stay
+   palette-only; the plugin owns the art.
+
+**Compare — real default TTY vs generated Default mockup:**
+
+| Real getty (QEMU, stock VGA / tty1) | OmaVT Default mockup |
+| --- | --- |
+| ![Real Omarchy TTY on tty1 — QEMU reference](reference-tty-default.png) | ![OmaVT Default mockup — same session, VGA palette + strip](preview-default.png) |
+
+Hero at the top is the same session on **Hackerman**. Pair with OmaTTY when you
+want the face size to match that path too.
 
 ## Install
 
@@ -133,9 +159,16 @@ bash ~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/check.sh
 
 ## Credits
 
+- **Layout reference:** [`reference-tty-default.png`](reference-tty-default.png)
+  — QEMU getty on tty1 (SDDM off in a nested Omarchy VM; no GPU passthrough).
+  Demo user `wolf`, path into `…/windows-11/single-gpu-start.sh`. Compare to
+  [`preview-default.png`](preview-default.png). Same session script as OmaTTY.
+- Hero mockup: official **Hackerman** theme. Default tile: stock VGA.
 - Sibling Style plugins: [OmaBoot](https://github.com/AlxWolfenstein97/omaboot),
   [OmaTTY](https://github.com/AlxWolfenstein97/omatty),
-  [OmaOBS](https://github.com/AlxWolfenstein97/omaobs).
+  [OmaOBS](https://github.com/AlxWolfenstein97/omaobs),
+  [OmaCursor](https://github.com/AlxWolfenstein97/omacursor),
+  [Chroma](https://github.com/AlxWolfenstein97/chroma).
 - [Omarchy](https://omarchy.org/) — Style → Unlock pattern, theme colours, and
   Limine entry-tool drop-ins this plugin appends carefully.
 

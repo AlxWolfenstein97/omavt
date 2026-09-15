@@ -507,22 +507,32 @@ def rebuild_limine() -> None:
         raise RuntimeError(f"limine-update failed: {err}")
 
 
-# omarchy-menu-images thumbnails every source to 1536×864 (16:9) with
-# smartcrop BEFORE the Style carousel shows it in a 768×475 tile. Matching
-# that size avoids a second crop; keep content inside ~8% side margins so
-# PreserveAspectCrop on the tile does not shave the subject.
+# omarchy-menu-images thumbnails every source to 1536×864 (16:9). Current TTY
+# chrome is top-left (real getty), so side crop barely matters; colour strip
+# stays centered at the bottom.
 MOCKUP_SIZE = (1536, 864)
-# Horizontal inset that survives 16:9 → ~1.62 tile crop (plus a little slack).
-SAFE_X = 120
+SAFE_X = 48
+
+
+def tty_banner(tty: str = "tty1") -> str:
+    """Match getty banner: Omarchy <uname -r> (ttyN). Nested VM often lands on tty1."""
+    try:
+        release = subprocess.check_output(
+            ["uname", "-r"], text=True, stderr=subprocess.DEVNULL
+        ).strip()
+    except (OSError, subprocess.SubprocessError):
+        release = "7.2.3-arch1-3"
+    return f"Omarchy {release} ({tty})"
 
 
 def try_font(size: int) -> ImageFont.ImageFont:
     candidates = [
+        "/usr/share/fonts/liberation/LiberationMono-Regular.ttf",
+        "/usr/share/fonts/Adwaita/AdwaitaMono-Regular.ttf",
+        "/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf",
         "/usr/share/fonts/TTF/DejaVuSansMono.ttf",
-        "/usr/share/fonts/TTF/DejaVuSans.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
-        "/usr/share/fonts/noto/NotoSans-Regular.ttf",
-        "/usr/share/fonts/TTF/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/noto/NotoSansMono-Regular.ttf",
     ]
     for path in candidates:
         if Path(path).is_file():
@@ -540,93 +550,61 @@ def render_mockup(
 ) -> Path:
     """Fake /dev/tty session wearing the theme (or VGA default) palette.
 
-    Generic prompts only — no real username, home paths, or kernel strings.
-    Theme name lives in the picker label, not the image.
+    Layout tracked from a default dark TTY QEMU capture (getty on tty1 after
+    SDDM off — nested Omarchy cannot Ctrl+Alt+F3). Same session script as
+    OmaTTY: login as wolf, then the single-GPU passthrough starter. Not a
+    live VT framebuffer capture.
     """
     w, h = size
     ansi: list[tuple[int, int, int]] = palette["ansi"]
-    bg = rgb_to_hex(ansi[0])
-    fg = rgb_to_hex(ansi[7])
-    bright = rgb_to_hex(ansi[15])
-    muted = rgb_to_hex(ansi[8])
-    green = rgb_to_hex(ansi[2])
-    cyan = rgb_to_hex(ansi[6])
-    yellow = rgb_to_hex(ansi[3])
-    red = rgb_to_hex(ansi[1])
-    magenta = rgb_to_hex(ansi[5])
+    bg = ansi[0]
+    fg = ansi[7]
+    bright = ansi[15]
+    muted = ansi[8]
+    cyan = ansi[6]
 
-    img = Image.new("RGB", size, hex_to_rgb(bg))
+    img = Image.new("RGB", size, bg)
     draw = ImageDraw.Draw(img)
 
     mono = try_font(26)
-    mono_sm = try_font(20)
+    mono_sm = try_font(18)
 
-    pad_x, pad_y = SAFE_X, 64
-    term = (pad_x, pad_y, w - pad_x, h - pad_y - 96)
-    draw.rectangle(term, outline=hex_to_rgb(muted), width=2)
-
-    lines: list[tuple[str, str]] = [
-        ("omarchy login: user", bright),
-        ("Password: ********", fg),
-        ("", fg),
-        ("Last login: on tty3", muted),
-        ("", fg),
-        ("user@omarchy ~", green),
-        ("> ls", fg),
-        ("Documents  Downloads  Projects  Music  Pictures", cyan),
-        ("user@omarchy ~", green),
-        ("> tty && echo ready", fg),
-        ("/dev/tty3", yellow),
-        ("ready", fg),
-        ("user@omarchy ~", green),
-        ("> ", fg),
-    ]
-    if palette.get("is_default"):
-        lines = [
-            ("omarchy login: user", bright),
-            ("Password: ********", fg),
-            ("", fg),
-            ("stock VGA palette — Default removes omavt colours only", muted),
-            ("", fg),
-            ("user@omarchy ~", green),
-            ("> # pick a theme tile to append vt.default_*", fg),
-            ("user@omarchy ~", green),
-            ("> ", fg),
-        ]
-
-    term_w = term[2] - term[0] - 32
-    term_h = term[3] - term[1] - 32
-    layer = Image.new("RGB", (term_w, term_h), hex_to_rgb(bg))
-    layer_draw = ImageDraw.Draw(layer)
+    # Real console is top-left, not a centered card.
+    origin_x, origin_y = 28, 28
     line_h = 34
-    for index, (text, color) in enumerate(lines):
-        y = 6 + index * line_h
-        if y + line_h > term_h:
-            break
-        layer_draw.text((8, y), text, font=mono, fill=hex_to_rgb(color))
-    cursor_y = 6 + (len(lines) - 1) * line_h
-    if cursor_y + line_h <= term_h:
-        layer_draw.rectangle((8 + 28, cursor_y + 4, 8 + 46, cursor_y + 26), fill=hex_to_rgb(fg))
-    img.paste(layer, (term[0] + 16, term[1] + 16))
 
-    strip_y = h - 78
+    # Keep session lines in sync with OmaTTY (sibling Style plugin).
+    banner = tty_banner("tty1")
+    prompt = "~ > "
+    command = "sudo /home/wolf/vm-space/windows-11/single-gpu-start.sh"
+
+    y = origin_y
+    draw.text((origin_x, y), banner, font=mono, fill=bright)
+    y += line_h
+    draw.text((origin_x, y), "omarchy login: wolf", font=mono, fill=fg)
+    y += line_h
+    draw.text((origin_x, y), "Password:", font=mono, fill=fg)
+    y += line_h
+    draw.text((origin_x, y), prompt, font=mono, fill=cyan)
+    prompt_w = int(draw.textlength(prompt, font=mono))
+    draw.text((origin_x + prompt_w, y), command, font=mono, fill=fg)
+    y += line_h
+    draw.rectangle((origin_x, y + 4, origin_x + 14, y + line_h - 6), fill=fg)
+
+    if palette.get("is_default"):
+        note = "stock VGA — Default removes omavt colours only"
+        draw.text((origin_x, y + line_h + 8), note, font=mono_sm, fill=muted)
+
+    strip_y = h - 72
     cell_w = 68
     total = cell_w * 16
-    x0 = (w - total) // 2
-    # Keep strip inside SAFE_X even if cell math drifts.
-    x0 = max(SAFE_X, min(x0, w - SAFE_X - total))
+    x0 = max(SAFE_X, (w - total) // 2)
+    x0 = min(x0, max(SAFE_X, w - SAFE_X - total))
     for index, rgb in enumerate(ansi):
         cx = x0 + index * cell_w
-        draw.rectangle((cx + 3, strip_y, cx + cell_w - 3, strip_y + 44), fill=rgb)
+        draw.rectangle((cx + 3, strip_y, cx + cell_w - 3, strip_y + 40), fill=rgb)
         ink = ansi[0] if (rgb[0] + rgb[1] + rgb[2]) > 380 else ansi[15]
-        draw.text((cx + 8, strip_y + 10), f"{index:X}", font=mono_sm, fill=ink)
-
-    for color, box in (
-        (red, (term[0] + 8, term[1] + 8, term[0] + 18, term[1] + 18)),
-        (yellow, (term[0] + 26, term[1] + 8, term[0] + 36, term[1] + 18)),
-        (magenta, (term[0] + 44, term[1] + 8, term[0] + 54, term[1] + 18)),
-    ):
-        draw.ellipse(box, fill=hex_to_rgb(color))
+        draw.text((cx + 8, strip_y + 8), f"{index:X}", font=mono_sm, fill=ink)
 
     dest.parent.mkdir(parents=True, exist_ok=True)
     img.save(dest, format="PNG", optimize=True)
