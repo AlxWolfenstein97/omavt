@@ -13,12 +13,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import multiprocessing as mp
 import os
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
@@ -388,6 +390,17 @@ def read_dropin() -> str | None:
     return result.stdout
 
 
+def read_dropin_nosudo() -> str | None:
+    """Picker path only — never block Style open on a sudo password."""
+    path = dropin_path()
+    try:
+        if path.is_file() and os.access(path, os.R_OK):
+            return path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    return None
+
+
 def write_dropin(content: str) -> None:
     path = dropin_path()
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -684,16 +697,37 @@ def bust_image_picker_cache(preview_root: Path) -> None:
             pass
 
 
+def _preview_pool(workers: int) -> ProcessPoolExecutor:
+    # See omacursor: force fork so bin/* → python3 lib/*.py workers do not
+    # re-import __main__ under Python 3.14's forkserver default.
+    try:
+        ctx = mp.get_context("fork")
+    except ValueError:
+        ctx = mp.get_context()
+    return ProcessPoolExecutor(max_workers=workers, mp_context=ctx)
+
+
 def generate_all_previews() -> list[Path]:
     out: list[Path] = []
     preview_root = paths()["cache"] / "previews"
     preview_root.mkdir(parents=True, exist_ok=True)
-    wanted = set(list_picker_slugs())
+    wanted = list(list_picker_slugs())
+    wanted_set = set(wanted)
     for existing in preview_root.glob("*.png"):
-        if existing.stem not in wanted:
+        if existing.stem not in wanted_set:
             existing.unlink(missing_ok=True)
-    for slug in list_picker_slugs():
-        out.append(generate_preview(slug))
+    if not wanted:
+        bust_image_picker_cache(preview_root)
+        return out
+    workers = max(1, min(len(wanted), os.cpu_count() or 2))
+    with _preview_pool(workers) as pool:
+        futures = {pool.submit(generate_preview, slug): slug for slug in wanted}
+        for fut in as_completed(futures):
+            slug = futures[fut]
+            try:
+                out.append(fut.result())
+            except Exception as error:  # noqa: BLE001
+                note(f"preview {slug}: {error}")
     bust_image_picker_cache(preview_root)
     return out
 
@@ -865,7 +899,7 @@ def cmd_switcher(_: argparse.Namespace) -> int:
     preview_dir = paths()["cache"] / "previews"
     current = current_omavt_slug()
     if not current:
-        existing = read_dropin()
+        existing = read_dropin_nosudo()
         current = DEFAULT_SLUG if not existing else None
     selected = ""
     if current and (preview_dir / f"{current}.png").is_file():
