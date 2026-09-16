@@ -157,6 +157,12 @@ Uninstall is a clean slate: menu row, cache/state, and the
 `omavt-colors.conf` limine-entry-tool drop-in (same as picking **Default**;
 sudo + `limine-update`).
 
+Shared packages stay installed. Optional wipe:
+
+```sh
+omarchy pkg drop python-pillow   # only if nothing else needs Pillow
+```
+
 ## Check
 
 ```sh

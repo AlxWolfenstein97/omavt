@@ -32,4 +32,5 @@ fi
 
 note "done — no omavt menu or colour drop-in left"
 note "plugin files remain at $here until you omit/remove the plugin"
+note "optional: omarchy pkg drop python-pillow  # if nothing else needs Pillow"
 exit 0
