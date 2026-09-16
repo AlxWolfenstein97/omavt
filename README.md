@@ -40,7 +40,7 @@ making *another* theme is more worth it. Longer origin / stop-line:
 | Extreme compatibility | Stock + user + foreign themes all appear in the picker automatically. |
 | True Theme Vibe | Top-left getty session + 16-colour strip from `colors.toml` / VGA Default. **Much closer** to a real TTY than a framed fake window — still not a live `/dev/tty` capture. |
 | Carousel-safe | Mockups are 1536×864 with ~8% side inset (SAFE_X=120). Session stays top-left *inside* that margin so the 768×475 tile crop does not shave getty text. |
-| Slow pickers are OK | Warming ~20+ PNGs takes a moment; that is the cost of generating previews instead of bundling assets. |
+| Snappy pickers | Mockups warm in parallel across CPU cores — opens like Omarchy’s stock art carousels. |
 
 We are **not** putting WYSIWYG screenshots in themes. Themes stay palette-only;
 OmaVT draws the session itself. Same True Theme Vibe idea as
@@ -110,9 +110,15 @@ Or from a checkout:
 omarchy plugin enable io.github.alxwolfenstein97.omavt
 ```
 
-**Needs:** Limine entry-tool drop-ins (`/etc/limine-entry-tool.d/`),
-`limine-update`, Omarchy’s image picker, Python 3 with Pillow
-(`python-pillow`), `kbd` (`setvtrgb`), and sudo for apply.
+**Needs (installer pulls these if missing):**
+
+| Package | Why |
+|---------|-----|
+| `python-pillow` | Draws the Style → TTY Themes mockup PNGs. Without it the carousel is empty on first open. |
+
+Also needs Limine entry-tool drop-ins (`/etc/limine-entry-tool.d/`),
+`limine-update`, Omarchy’s image picker, `kbd` (`setvtrgb`), and sudo for apply.
+`install.sh` installs Pillow **before** warming mockups.
 
 ## How it works
 
