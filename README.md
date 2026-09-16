@@ -40,7 +40,7 @@ making *another* theme is more worth it. Longer origin / stop-line:
 | Extreme compatibility | Stock + user + foreign themes all appear in the picker automatically. |
 | True Theme Vibe | Top-left getty session + 16-colour strip from `colors.toml` / VGA Default. **Much closer** to a real TTY than a framed fake window — still not a live `/dev/tty` capture. |
 | Carousel-safe | Mockups are 1536×864 with ~8% side inset (SAFE_X=120). Session stays top-left *inside* that margin so the 768×475 tile crop does not shave getty text. |
-| Snappy pickers | Mockups warm in parallel across CPU cores — opens like Omarchy’s stock art carousels. |
+| Snappy pickers | Mockups warm in parallel across CPU cores and **skip tiles whose `colors.toml` (and layout version) haven’t changed** — reopen is near-instant. |
 
 We are **not** putting WYSIWYG screenshots in themes. Themes stay palette-only;
 OmaVT draws the session itself. Same True Theme Vibe idea as
