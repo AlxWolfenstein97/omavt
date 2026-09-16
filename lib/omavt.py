@@ -862,6 +862,7 @@ STYLE_EXTENDER_BLOCKS = (
     "omaboot",
     "omavt",
     "omatty",
+    "omahud",
 )
 
 
