@@ -145,22 +145,18 @@ omavt set tokyo-night --dry-run
 omavt current
 ```
 
-## Remove
+## Disable vs remove
+
+| Action | What happens |
+|--------|----------------|
+| `omarchy plugin disable …` | Shell service stops. No theme-set hook here — last vt colour drop-in stays until you uninstall or pick **Default**. |
+| `./uninstall.sh` then disable / remove | Menu, cache/state, and `omavt-colors.conf` gone (same as **Default**; sudo + `limine-update`). Shared packages stay. |
+| `omarchy pkg drop python-pillow` | Optional. Only if nothing else on the machine needs Pillow. |
 
 ```sh
 ~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/uninstall.sh
 omarchy plugin disable io.github.alxwolfenstein97.omavt
 omarchy plugin remove io.github.alxwolfenstein97.omavt
-```
-
-Uninstall is a clean slate: menu row, cache/state, and the
-`omavt-colors.conf` limine-entry-tool drop-in (same as picking **Default**;
-sudo + `limine-update`).
-
-Shared packages stay installed. Optional wipe:
-
-```sh
-omarchy pkg drop python-pillow   # only if nothing else needs Pillow
 ```
 
 ## Check
