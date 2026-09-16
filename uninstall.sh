@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Remove OmaVT menu wiring. Does not rewrite limine-entry-tool.d — your last
-# applied vt.default_* drop-in stays until you pick Default or remove it.
+# Full clean-slate: menu, cache/state, and the vt.default_* limine-entry-tool
+# drop-in (same as picking Default). Rebuilds Limine entries when possible.
 #
 set -euo pipefail
 
@@ -11,9 +11,15 @@ state="$HOME/.local/state/omarchy/omavt"
 cache="$HOME/.cache/omarchy/omavt"
 
 note() { printf 'omavt: %s\n' "$1"; }
+warn() { printf 'omavt: %s\n' "$1" >&2; }
 
 export OMAVT_PLUGIN_DIR="$here"
 "$here/bin/omavt" uninstall-menu || true
+
+# set default → remove_dropin + limine-update (sudo).
+if ! "$here/bin/omavt" set default --quiet; then
+  warn "could not remove vt colour drop-in (sudo?) — menu/cache still removed"
+fi
 
 rm -rf "$state" "$cache"
 note "cleared state/cache"
@@ -24,5 +30,6 @@ if command -v omarchy >/dev/null 2>&1; then
   omarchy plugin disable "$plugin_id" >/dev/null 2>&1 || true
 fi
 
-note "done — plugin files left at $here; colour drop-in left as last applied"
+note "done — no omavt menu or colour drop-in left"
+note "plugin files remain at $here until you omit/remove the plugin"
 exit 0

@@ -153,9 +153,9 @@ omarchy plugin disable io.github.alxwolfenstein97.omavt
 omarchy plugin remove io.github.alxwolfenstein97.omavt
 ```
 
-Uninstall removes the menu row and cache/state. It does **not** delete
-`omavt-colors.conf` — pick **Default** (or `omavt set default`) if you want
-the colour block gone.
+Uninstall is a clean slate: menu row, cache/state, and the
+`omavt-colors.conf` limine-entry-tool drop-in (same as picking **Default**;
+sudo + `limine-update`).
 
 ## Check
 
