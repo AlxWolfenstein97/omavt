@@ -181,6 +181,7 @@ bash ~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/check.sh
   [OmaTTY](https://github.com/AlxWolfenstein97/omatty),
   [OmaOBS](https://github.com/AlxWolfenstein97/omaobs),
   [OmaCursor](https://github.com/AlxWolfenstein97/omacursor),
+  [OmaHud](https://github.com/AlxWolfenstein97/omahud),
   [Chroma](https://github.com/AlxWolfenstein97/chroma).
 - [Omarchy](https://omarchy.org/) — Style → Unlock pattern, theme colours, and
   Limine entry-tool drop-ins this plugin appends carefully.
