@@ -25,6 +25,8 @@ launch_cleanup_floater() {
   {
     printf '%s\n' '#!/usr/bin/env bash' 'set -uo pipefail'
     printf '%s\n' "printf '%s\n' 'OmaVT — uninstall'"
+    printf '%s\n' "printf '%s\n' 'io.github.alxwolfenstein97.omavt'"
+    printf '%s\n' "printf '%s\n' 'Style → TTY Themes — vt.default_* colour mockups + apply'"
     printf '%s\n' "printf '%s\n' '────────────────────────────────'"
     printf '%s\n' "printf '%s\n' 'Will remove / reset (sudo):'"
     printf '%s\n' "printf '%s\n' '  • /etc/limine-entry-tool.d/omavt-colors.conf (vt.default_* drop-in)'"
@@ -37,13 +39,14 @@ launch_cleanup_floater() {
     printf '%s\n' 'fi'
     if ((${#have[@]})); then
       printf '%s\n' ''
-      printf '%s\n' "printf '%s\n' 'Optional — drop shared packages only if nothing else needs them:'"
+      printf '%s\n' "printf '%s\n' 'Optional — packages OmaVT may have pulled (only if nothing else needs them):'"
       for pkg in "${have[@]}"; do
         case $pkg in
-          python-pillow) printf '%s\n' "printf '  • %s — %s\n' 'python-pillow' 'Style carousel mockups'" ;;
+          python-pillow) printf '%s\n' "printf '  • %s — %s\n' 'python-pillow' 'was used to draw TTY Themes carousel mockups'" ;;
           *) printf '%s\n' "printf '  • %s\n' $(printf %q "$pkg")" ;;
         esac
       done
+      printf '%s\n' "printf '%s\n' '────────────────────────────────'"
       printf '%s\n' "read -r -p 'Drop ${list}? [y/N] ' a"
       printf '%s\n' 'case $a in'
       printf '%s\n' "  [yY]|[yY][eE][sS]) omarchy pkg drop ${list} ;;"
@@ -60,6 +63,7 @@ launch_cleanup_floater() {
     ((${#have[@]})) && note "optional: omarchy pkg drop $list"
   fi
 }
+
 
 export OMAVT_PLUGIN_DIR="$here"
 
