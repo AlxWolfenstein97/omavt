@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 #
-# Menu + cache/state. Opens a floating terminal to run Default (remove
-# vt.default_* drop-in, sudo) — we clean up our extra TTY paint. Optional y/N
-# pkg drop in the same floater. Omarchy's plugin remove does not run this
-# script (dir delete only).
+# Menu + cache/state. Floating terminal runs Default (sudo) to strip our vt
+# paint. Optional y/N pkg drop in the same floater.
 #
 set -euo pipefail
 
@@ -26,19 +24,30 @@ launch_cleanup_floater() {
   mkdir -p "$state"
   {
     printf '%s\n' '#!/usr/bin/env bash' 'set -uo pipefail'
-    printf '%s\n' "printf 'OmaVT uninstall — resetting TTY colours to Default (sudo)\\n'"
+    printf '%s\n' "printf '%s\n' 'OmaVT — uninstall'"
+    printf '%s\n' "printf '%s\n' '────────────────────────────────'"
+    printf '%s\n' "printf '%s\n' 'Will remove / reset (sudo):'"
+    printf '%s\n' "printf '%s\n' '  • /etc/limine-entry-tool.d/omavt-colors.conf (vt.default_* drop-in)'"
+    printf '%s\n' "printf '%s\n' '────────────────────────────────'"
+    printf '%s\n' "printf '%s\n' ''"
     printf '%s\n' "if $(printf '%q ' "$here/bin/omavt" set default); then"
-    printf '%s\n' "  printf 'vt colour drop-in removed\\n'"
+    printf '%s\n' "  printf 'vt colour drop-in removed\n'"
     printf '%s\n' 'else'
-    printf '%s\n' "  printf 'Default failed — omavt-colors.conf may still be present\\n' >&2"
+    printf '%s\n' "  printf 'Default failed — omavt-colors.conf may still be present\n' >&2"
     printf '%s\n' 'fi'
     if ((${#have[@]})); then
       printf '%s\n' ''
-      printf '%s\n' "printf '\\nOptional: drop shared packages only if nothing else needs them.\\n'"
+      printf '%s\n' "printf '%s\n' 'Optional — drop shared packages only if nothing else needs them:'"
+      for pkg in "${have[@]}"; do
+        case $pkg in
+          python-pillow) printf '%s\n' "printf '  • %s — %s\n' 'python-pillow' 'Style carousel mockups'" ;;
+          *) printf '%s\n' "printf '  • %s\n' $(printf %q "$pkg")" ;;
+        esac
+      done
       printf '%s\n' "read -r -p 'Drop ${list}? [y/N] ' a"
       printf '%s\n' 'case $a in'
       printf '%s\n' "  [yY]|[yY][eE][sS]) omarchy pkg drop ${list} ;;"
-      printf '%s\n' "  *) printf 'skipped package drop\\n' ;;"
+      printf '%s\n' "  *) printf 'skipped package drop\n' ;;"
       printf '%s\n' 'esac'
     fi
   } >"$script"
