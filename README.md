@@ -150,11 +150,15 @@ omavt current
 | Action | What happens |
 |--------|----------------|
 | `omarchy plugin disable …` | Shell service stops. No theme-set hook here — last vt colour drop-in stays until you uninstall or pick **Default**. |
-| `./uninstall.sh` then disable / remove | Menu, cache/state gone; best-effort remove of `omavt-colors.conf` (same as **Default**; **sudo** + `limine-update`). Same class as Style → Unlock: TTY paint may stay until you pick **Default** again — no floating-terminal retry. Shared packages stay. Leaves a state tombstone so Service `--quiet` cannot resurrect the menu. Refresh + `rescanPlugins` so the shell drops the row. |
+| `./uninstall.sh` then disable / remove | Menu, cache/state gone; best-effort **Default** (remove `omavt-colors.conf`, **sudo**, floating terminal if needed). Dismiss the prompt and TTY paint stays until you `omavt set default` yourself. Shared packages stay. Tombstone + refresh + `rescanPlugins`. |
 
 Quiet Service install: one-shot package prompt, menu written only if `// omavt:start`
 markers are missing (no rewrite every boot).
 | `omarchy pkg drop python-pillow` | Optional. Only if nothing else on the machine needs Pillow. |
+
+**Prepare before removal** if you might dismiss the sudo prompt: run
+`omavt set default` (or pick **Default** in TTY Themes) while the plugin is
+still installed, then uninstall.
 
 **Full wipe** — copy-paste to remove plugin wiring *and* the shared package this
 installer may have pulled (skip the `pkg drop` line if something else still
@@ -165,6 +169,17 @@ needs Pillow):
 omarchy plugin disable io.github.alxwolfenstein97.omavt
 omarchy plugin remove io.github.alxwolfenstein97.omavt
 omarchy pkg drop python-pillow
+```
+
+## Fresh VM smoke test
+
+```sh
+omarchy plugin add https://github.com/AlxWolfenstein97/omavt.git --enable
+# Style → TTY Themes → pick Hackerman; reboot / cold VT for vt.default_* 
+# Confirm /etc/limine-entry-tool.d/omavt-colors.conf exists
+# Uninstall: ./uninstall.sh should sudo-remove that drop-in (floating terminal
+# if needed). Afterward the file should be gone and limine-update has run.
+ls /etc/limine-entry-tool.d/omavt-colors.conf  # should fail after clean uninstall
 ```
 
 ## Check
