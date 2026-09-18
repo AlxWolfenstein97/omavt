@@ -155,9 +155,9 @@ omavt current
 |--------|----------------|
 | `omarchy plugin disable …` | Shell service stops. No theme-set hook — last vt colour drop-in stays. |
 | `./uninstall.sh` then disable / remove | Menu + cache/state gone. Tombstone + disable **first** so Service quiet cannot resurrect the Style row. Then a **floating terminal** runs `omavt set default` (sudo) to strip our vt paint — we clean up our extras. Same floater offers y/N `pkg drop`. |
-| `omarchy pkg drop python-pillow` | Optional. Only if nothing else needs Pillow. Offered in the uninstall floater. |
+| `omarchy pkg drop python-pillow` | Optional. Itemized uninstall floater shows why + `pacman Required By`. Clear/uninstall still work without Pillow. Drop may fail if other pkgs need it — that is fine. |
 
-Quiet Service install: one-shot package prompt; menu written only if `// omavt:start`
+Quiet Service install: one-shot package prompt (Pillow claimed under a shared flock so parallel Style plugins do not each spam an install floater); menu written only if `// omavt:start`
 markers are missing; also scrubs orphan Style rows for sibling plugins whose
 dirs were deleted without `uninstall.sh`.
 
