@@ -176,9 +176,13 @@ omarchy plugin remove io.github.alxwolfenstein97.omavt
 
 ```sh
 omarchy plugin add https://github.com/AlxWolfenstein97/omavt.git --enable
-# Style → TTY Themes → pick Hackerman; reboot / cold VT for vt.default_*
-# Confirm /etc/limine-entry-tool.d/omavt-colors.conf exists
-# ./uninstall.sh  → Style row gone; floater removes omavt-colors.conf (sudo)
+# Style → TTY Themes appears without a shell restart; carousel tiles warm (needs python-pillow)
+# Pick a loud theme; confirm the surface updates (Ctrl+Alt+F3 colours)
+# Skip install floater → logout/reboot → floater returns (shell restart does not re-nag)
+# Parallel Style plugins share one Pillow floater; siblings only ask for their own missing pkgs
+# ./uninstall.sh → reset floater (omavt set default — strip vt paint) + optional itemized pkg drop (Pillow notes Required By)
+# Skip remove floater + disable → reinstall → uninstall again → complete the floater
+# With mangohud/goverlay kept, Pillow drop may fail — fine; clear/uninstall still work without Pillow
 ```
 
 ## Check
