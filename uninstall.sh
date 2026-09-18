@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 #
 # Clean-slate: menu, cache/state. Best-effort Default reset (remove vt.default_*
-# drop-in; sudo; floating terminal if password needed). Dismiss the prompt and
-# TTY paint stays — prepare with `omavt set default` before remove.
+# drop-in once). Omarchy's plugin remove does not run this script — it only
+# deletes the plugin dir — so do not rely on a floating-terminal sudo dance
+# here. Prepare before removal: `omavt set default` (or TTY Themes → Default)
+# while the plugin is still installed.
 #
 set -euo pipefail
 
@@ -21,19 +23,13 @@ mkdir -p "$(dirname "$menu_lock")"
   "$here/bin/omavt" uninstall-menu || true
 ) 9>"$menu_lock"
 
-# Best-effort Default reset (sudo). Prefer immediate; else one floating
-# terminal so vt.default_* actually go away before the plugin disappears.
+# Best-effort once. No nested floating terminal — same class as quiet install:
+# sudo that needs a password is the user's job before they remove the plugin.
 if "$here/bin/omavt" set default --quiet 2>/dev/null; then
   note "removed omavt vt colour drop-in (Default)"
-elif sudo -n "$here/bin/omavt" set default --quiet 2>/dev/null; then
-  note "removed omavt vt colour drop-in (Default)"
-elif command -v omarchy-launch-floating-terminal-with-presentation >/dev/null 2>&1; then
-  note "sudo needed to reset TTY colours — opening a floating terminal"
-  omarchy-launch-floating-terminal-with-presentation \
-    "$here/bin/omavt set default" >/dev/null 2>&1 || true
-  note "if you dismiss that prompt, TTY paint stays — run: $here/bin/omavt set default"
 else
-  note "vt colour drop-in left in place (sudo needed) — prepare before removal: $here/bin/omavt set default"
+  note "vt colour drop-in left in place (sudo needed)"
+  note "prepare before removal: $here/bin/omavt set default   # or TTY Themes → Default"
 fi
 
 rm -rf "$state" "$cache"
@@ -48,7 +44,7 @@ if command -v omarchy >/dev/null 2>&1; then
   omarchy plugin disable "$plugin_id" >/dev/null 2>&1 || true
 fi
 
-note "done — no omavt menu left; TTY colours reset to Default when sudo succeeded"
+note "done — no omavt menu left; TTY paint only reset if sudo worked"
 note "plugin files remain at $here until you omit/remove the plugin"
 note "optional: omarchy pkg drop python-pillow  # if nothing else needs Pillow"
 exit 0
