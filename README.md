@@ -153,27 +153,23 @@ omavt current
 
 | Action | What happens |
 |--------|----------------|
-| `omarchy plugin disable …` | Shell service stops. No theme-set hook here — last vt colour drop-in stays until you uninstall or pick **Default**. |
-| `./uninstall.sh` then disable / remove | Menu, cache/state gone; best-effort **Default** if sudo already works. **No floating-terminal sudo** — Omarchy’s `plugin remove` never runs this script (deletes the dir only). Prepare before removal: `omavt set default` or TTY Themes → Default. Shared packages stay. Tombstone + refresh + `rescanPlugins`. |
+| `omarchy plugin disable …` | Shell service stops. No theme-set hook — last vt colour drop-in stays. |
+| `./uninstall.sh` then disable / remove | Menu + cache/state gone. Tombstone + disable **first** so Service quiet cannot resurrect the Style row. Then a **floating terminal** runs `omavt set default` (sudo) to strip our vt paint — we clean up our extras. Same floater offers y/N `pkg drop`. |
+| `omarchy pkg drop python-pillow` | Optional. Only if nothing else needs Pillow. Offered in the uninstall floater. |
 
-Quiet Service install: one-shot package prompt, menu written only if `// omavt:start`
-markers are missing (no rewrite every boot).
-| `omarchy pkg drop python-pillow` | Optional. Only if nothing else on the machine needs Pillow. |
+Quiet Service install: one-shot package prompt; menu written only if `// omavt:start`
+markers are missing; also scrubs orphan Style rows for sibling plugins whose
+dirs were deleted without `uninstall.sh`.
 
-**Prepare before removal** (recommended): Omarchy `plugin remove` does not run
-`uninstall.sh` — it only deletes the plugin folder, so `omavt-colors.conf` can
-linger. While the plugin is still installed, run `omavt set default` (or pick
-**Default** in TTY Themes), then uninstall / remove.
+Omarchy `plugin remove` never runs `uninstall.sh` (dir delete only) — always
+`./uninstall.sh` first so the floater can reset TTY colours.
 
-**Full wipe** — copy-paste to remove plugin wiring *and* the shared package this
-installer may have pulled (skip the `pkg drop` line if something else still
-needs Pillow):
+**Full wipe:**
 
 ```sh
 ~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/uninstall.sh
-omarchy plugin disable io.github.alxwolfenstein97.omavt
+# floater: omavt set default + optional pkg drop
 omarchy plugin remove io.github.alxwolfenstein97.omavt
-omarchy pkg drop python-pillow
 ```
 
 ## Fresh VM smoke test
@@ -182,9 +178,7 @@ omarchy pkg drop python-pillow
 omarchy plugin add https://github.com/AlxWolfenstein97/omavt.git --enable
 # Style → TTY Themes → pick Hackerman; reboot / cold VT for vt.default_*
 # Confirm /etc/limine-entry-tool.d/omavt-colors.conf exists
-# Before remove: omavt set default   # sudo here, while the plugin still exists
-# Then: ./uninstall.sh  and/or  omarchy plugin remove …
-ls /etc/limine-entry-tool.d/omavt-colors.conf  # should fail after a prepared remove
+# ./uninstall.sh  → Style row gone; floater removes omavt-colors.conf (sudo)
 ```
 
 ## Check
