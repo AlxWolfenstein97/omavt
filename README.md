@@ -129,8 +129,12 @@ Also needs Limine entry-tool drop-ins (`/etc/limine-entry-tool.d/`),
    (same privilege pattern as Unlock).
 3. A themed pick writes `/etc/limine-entry-tool.d/omavt-colors.conf` and runs
    `limine-update`. **Default** deletes that file only — it does not restore
-   stock Omarchy cmdline snippets.
-4. `setvtrgb` applies the palette live when possible.
+   stock Omarchy cmdline snippets. That rebuild is the slow bit — it is for
+   the *next* cold boot / future hops, not the live retint.
+4. `setvtrgb` applies the palette **live** when you can hop to a TTY — often
+   enough to preview without rebooting. Pair with
+   [OmaTTY](https://github.com/AlxWolfenstein97/omatty) for a fat console face
+   (DRM reapply keeps SDDM reachable after VFIO).
 
 CLI:
 
