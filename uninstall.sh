@@ -5,6 +5,11 @@
 #
 set -euo pipefail
 
+assume_yes=0
+for arg in "$@"; do
+  case $arg in --yes|-y) assume_yes=1 ;; esac
+done
+
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 plugin_id="io.github.alxwolfenstein97.omavt"
 state="$HOME/.local/state/omarchy/omavt"
@@ -142,7 +147,12 @@ note "cleared state/cache (tombstone left so quiet install cannot resurrect)"
 omarchy-shell -q omarchy.menu refresh >/dev/null 2>&1 || true
 omarchy-shell -q shell rescanPlugins >/dev/null 2>&1 || true
 
-launch_cleanup_floater python-pillow
+if (( assume_yes )); then
+  # teardown only (clear Limine/VT/FONT) — no optional pkg Y/n
+  launch_cleanup_floater
+else
+  launch_cleanup_floater python-pillow
+fi
 
 note "done — no omavt menu left; TTY paint reset in floating terminal"
 note "plugin files remain at $here until you omit/remove the plugin"
