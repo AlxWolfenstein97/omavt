@@ -117,7 +117,14 @@ Style menu helper: `./tools/install-style-menu.sh --yes`.
 ~/.config/omarchy/plugins/io.github.alxwolfenstein97.chroma/tools/arm-all-family.sh
 ```
 
-**Wipe the whole family** (teardown + remove; skips pkg Y/n):
+**Full wipe (this plugin)** — same ease as `install.sh --yes`
+(teardown + `plugin remove`; skips optional pkg Y/n; pillow etc. stay):
+
+```sh
+~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/uninstall.sh --yes
+```
+
+**Wipe the whole family** (calls each plugin’s `uninstall.sh --yes`):
 
 ```sh
 ~/.config/omarchy/plugins/io.github.alxwolfenstein97.chroma/tools/wipe-all-family.sh
@@ -196,12 +203,10 @@ dirs were deleted without `uninstall.sh`.
 Omarchy `plugin remove` never runs `uninstall.sh` (dir delete only) — always
 `./uninstall.sh` first so the floater can reset TTY colours.
 
-**Full wipe:**
+**Full wipe** — one shot (`--yes` skips pkg Y/n and removes the plugin):
 
 ```sh
-~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/uninstall.sh
-# floater: omavt set default + optional pkg drop
-omarchy plugin remove io.github.alxwolfenstein97.omavt
+~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/uninstall.sh --yes
 ```
 
 ## Fresh VM smoke test
