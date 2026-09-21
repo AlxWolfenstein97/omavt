@@ -164,8 +164,9 @@ omarchy plugin enable io.github.alxwolfenstein97.omavt
 1. `bin/omavt-switcher` renders PNG mockups into
    `~/.cache/omarchy/omavt/previews/` (including `default.png`), then opens
    `omarchy-menu-images`.
-2. On selection, Style launches a floating terminal running `omavt-set`
-   (same privilege pattern as Unlock).
+2. On selection, Style launches Omarchy’s floating terminal running `omavt-set`
+   (same privilege pattern as Unlock). Install / uninstall / arm-all / wipe use
+   the same TTY.
 3. A themed pick writes `/etc/limine-entry-tool.d/omavt-colors.conf` and runs
    `limine-update`. **Default** deletes that file only — it does not restore
    stock Omarchy cmdline snippets. That rebuild is the slow bit — it is for
