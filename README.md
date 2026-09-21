@@ -193,8 +193,8 @@ omavt current
 | Action | What happens |
 |--------|----------------|
 | `omarchy plugin disable …` | Shell service stops. No theme-set hook — last vt colour drop-in stays. |
-| `./uninstall.sh` then disable / remove | Menu + cache/state gone. Tombstone + disable **first** so Service quiet cannot resurrect the Style row. Then a **floating terminal** runs `omavt set default` (sudo) to strip our vt paint — we clean up our extras. Same floater offers y/N `pkg drop`. |
-| `omarchy pkg drop python-pillow` | Optional. Itemized uninstall floater shows why + `pacman Required By`. Clear/uninstall still work without Pillow. Drop may fail if other pkgs need it — that is fine. |
+| `./uninstall.sh` then disable / remove | Menu + cache/state gone. Tombstone + disable **first** so Service quiet cannot resurrect the Style row. Then this TTY runs `omavt set default` (sudo) to strip vt paint + optional y/N `pkg drop`. |
+| `omarchy pkg drop python-pillow` | Optional. TTY uninstall prompts show why + `pacman Required By`. Clear/uninstall still work without Pillow. Drop may fail if other pkgs need it — that is fine. |
 
 Quiet Service install (`--quiet`): **no package floaters** — restores already-armed
 wiring only. Deps + Style consent come from interactive `install.sh`, `--yes`, or
@@ -203,7 +203,7 @@ missing; also scrubs orphan Style rows for sibling plugins whose dirs were delet
 without `uninstall.sh`.
 
 Omarchy `plugin remove` never runs `uninstall.sh` (dir delete only) — always
-`./uninstall.sh` first so the floater can reset TTY colours.
+`./uninstall.sh` first so this TTY can reset TTY colours.
 
 **Full wipe** — one shot (`--yes` skips pkg Y/n and removes the plugin):
 
@@ -217,10 +217,10 @@ Omarchy `plugin remove` never runs `uninstall.sh` (dir delete only) — always
 omarchy plugin add https://github.com/AlxWolfenstein97/omavt.git --enable
 # Style → TTY Themes appears without a shell restart; carousel tiles warm (needs python-pillow)
 # Pick a loud theme; confirm the surface updates (Ctrl+Alt+F3 colours)
-# Skip install floater → logout/reboot → floater returns (shell restart does not re-nag)
-# Parallel Style plugins share one Pillow floater; siblings only ask for their own missing pkgs
-# ./uninstall.sh → reset floater (omavt set default — strip vt paint) + optional itemized pkg drop (Pillow notes Required By)
-# Skip remove floater + disable → reinstall → uninstall again → complete the floater
+# plugin add alone + reboot → still no floater (quiet skips pkgs); run install.sh for deps/hooks
+# Parallel install.sh: shared Pillow flock; siblings only ask for their own missing pkgs
+# ./uninstall.sh → this TTY: omavt set default + optional pkg drop
+# Skip pkg prompts (n) + disable → reinstall → uninstall again → answer y if you want drops
 # With mangohud/goverlay kept, Pillow drop may fail — fine; clear/uninstall still work without Pillow
 ```
 
