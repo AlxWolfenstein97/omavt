@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Menu + cache/state. Runs Default (sudo) in this TTY to strip vt paint +
-# optional y/N pkg drop. --yes does both inline. No floaters.
+# optional y/N pkg drop. --yes does both inline. Prompts stay in this TTY.
 #
 set -euo pipefail
 
@@ -33,7 +33,7 @@ try_pkg_drop() {
 }
 
 ask_pkg_drop() {
-  # Interactive — prompts in this terminal (no floater).
+  # Interactive — prompts in this terminal (this TTY).
   local -a have=()
   local pkg a req
   for pkg in "$@"; do
