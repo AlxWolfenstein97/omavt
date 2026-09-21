@@ -163,8 +163,13 @@ omarchy-shell -q omarchy.menu refresh >/dev/null 2>&1 || true
 omarchy-shell -q shell rescanPlugins >/dev/null 2>&1 || true
 
 if (( assume_yes )); then
-  # privileged teardown floater (no Y/n) + best-effort package drops
-  launch_cleanup_floater
+  # inline VT reset (no floater) + best-effort package drops
+  note "full wipe (--yes): resetting VT paint inline"
+  if "$here/bin/omavt" set default; then
+    note "vt colour drop-in removed"
+  else
+    note "Default failed — omavt-colors.conf may still be present"
+  fi
   note "full wipe (--yes): trying package drops (kept if still required elsewhere)"
   try_pkg_drop python-pillow
 else
