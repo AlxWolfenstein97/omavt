@@ -5,7 +5,7 @@
   "version": "1.1.1",
   "author": "AlxWolfenstein97",
   "license": "MIT",
-  "description": "Style menu picker with unlock-style TTY mockups for every Omarchy theme. Appends vt.default_* / vt.color via a limine-entry-tool.d drop-in (sudo); Default removes only that colour block.",
+  "description": "Style menu TTY vt.default_* from colors.toml. Not broken \u2014 read the git README to arm the Style menu after install.",
   "homepage": "https://github.com/AlxWolfenstein97/omavt",
   "repository": "https://github.com/AlxWolfenstein97/omavt",
   "kinds": [
