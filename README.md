@@ -118,19 +118,42 @@ Style menu helper: `./tools/install-style-menu.sh --yes`.
 ```
 
 **Full wipe (this plugin)** — same ease as `install.sh --yes`
-(full teardown + `plugin remove`; best-effort `pkg drop` for deps this plugin
-may have pulled — kept only when pacman still needs them elsewhere):
+(full teardown + `plugin remove`; best-effort `pkg drop` only for packages this install
+recorded pulling (pre-existing deps stay) — kept only when pacman still needs them elsewhere):
 
 ```sh
 ~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/uninstall.sh --yes
 ```
 
 **Wipe the whole family** (runs each plugin’s `uninstall.sh --yes` — same full
-teardown as a single-plugin wipe — then a final shared-dep sweep):
+teardown as a single-plugin wipe; ledger-only pkg drops, no blanket shared-dep sweep):
 
 ```sh
 ~/.config/omarchy/plugins/io.github.alxwolfenstein97.chroma/tools/wipe-all-family.sh
+# optional virgin bookkeeping: add --purge-tombstones
 ```
+
+### Tombstones (after wipe)
+
+Each `uninstall.sh` leaves `~/.local/state/omarchy/<plugin>/uninstalled` so a
+**same-session** boom-out → boom-in can reset package-prompt stamps / shared
+Pillow claims and feel like a fresh install. Logout/reboot already clear those
+runtime stamps; long-term the file is harmless bookkeeping. Quiet Service does
+**not** re-arm Style from the tombstone — that needs a loud `install.sh` (or
+`--yes` / family arm).
+
+Smash tombstones only for virgin bookkeeping (never coming back / OCD clean):
+
+```sh
+rm -f ~/.local/state/omarchy/{chroma,omacursor,omaobs,omahud,omaboot,omavt,omatty}/uninstalled
+```
+
+Or fold that into the family wipe:
+
+```sh
+~/.config/omarchy/plugins/io.github.alxwolfenstein97.chroma/tools/wipe-all-family.sh --purge-tombstones
+```
+
 
 Interactive `./install.sh` still asks [Y/n] if you prefer. Quiet shell restarts
 only restore what you already armed. `./uninstall.sh --yes` is a full wipe for
@@ -194,8 +217,8 @@ omavt current
 | Action | What happens |
 |--------|----------------|
 | `omarchy plugin disable …` | Shell service stops. No theme-set hook — last vt colour drop-in stays. |
-| `./uninstall.sh` then disable / remove | Menu + cache/state gone. Tombstone + disable **first** so Service quiet cannot resurrect the Style row. Then this TTY runs `omavt set default` (sudo) to strip vt paint + optional y/N `pkg drop`. |
-| `omarchy pkg drop python-pillow` | Optional. TTY uninstall prompts show why + `pacman Required By`. Clear/uninstall still work without Pillow. Drop may fail if other pkgs need it — that is fine. |
+| `./uninstall.sh` then disable / remove | Menu + cache/state gone. Tombstone + disable **first** (quiet Service will not re-arm Style without a loud install). Then this TTY runs `omavt set default` (sudo) to strip vt paint + optional y/N `pkg drop` of packages this install recorded pulling. |
+| `omarchy pkg drop python-pillow` | Optional — only if this install recorded pulling it. TTY prompts show why + `pacman Required By`. |
 
 Quiet Service install (`--quiet`): restores already-armed wiring only. Deps + Style consent come from interactive `install.sh`, `--yes`, or
 family `arm-all-family.sh`. Menu written only if `// omavt:start` markers are
@@ -205,7 +228,7 @@ without `uninstall.sh`.
 Omarchy `plugin remove` never runs `uninstall.sh` (dir delete only) — always
 `./uninstall.sh` first so this TTY can reset TTY colours.
 
-**Full wipe** — one shot (`--yes` skips pkg Y/n, best-effort drops deps this plugin may have pulled if nothing else needs them, and removes the plugin):
+**Full wipe** — one shot (`--yes` skips pkg Y/n, best-effort drops packages this install recorded pulling (if nothing else needs them), and removes the plugin):
 
 ```sh
 ~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/uninstall.sh --yes
