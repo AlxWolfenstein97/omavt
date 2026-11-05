@@ -37,7 +37,7 @@ pkgs_stamp="$runtime_dir/pkgs-prompted"
 
 # Tombstone from uninstall. Disable-first in uninstall.sh means a later quiet
 # Service run is a re-enable / re-add — clear tombstone + prompt stamps so the
-# Style menu and package prompts can run again after wipe.
+# Appearance menu and package prompts can run again after wipe.
 if [[ -f $state/uninstalled ]]; then
   # Per-plugin prompt stamps + shared Pillow claim. Claim survives an ignored
   # claim and would block pillow-only plugins (OmaBoot/OmaVT/OmaOBS) on
@@ -63,7 +63,7 @@ fi
 
 mkdir -p "$state"
 
-# --- marketplace consent: Style menu / theme-set hook are opt-in -----------
+# --- marketplace consent: Appearance menu / theme-set hook are opt-in -----------
 # Quiet Service must not write user config unless previously armed.
 # Interactive asks; --with-style-menu / --with-theme-hook / --arm-all force.
 # Existing hook/menu from older installs grandfather into armed-*.
@@ -76,7 +76,7 @@ menu_file="${menu_file:-$HOME/.config/omarchy/extensions/omarchy-menu.jsonc}"
 [[ -f $state/armed-style-menu ]] && arm_style_menu=1
 if (( ! quiet && ! assume_yes )); then
   if (( ! arm_style_menu )); then
-    printf '%s' "omavt: install Style → TTY Themes menu entry? [Y/n] "
+    printf '%s' "omavt: install Appearance → Extenders → TTY menu entry? [Y/n] "
     read -r _ans || _ans=
     case ${_ans:-Y} in [nN]|[nN][oO]) arm_style_menu=0 ;; *) arm_style_menu=1 ;; esac
   fi
@@ -138,20 +138,20 @@ pull_pkgs() {
   fi
 
   if ! command -v omarchy >/dev/null 2>&1; then
-    warn "OmaVT needs ${missing[*]} for: Style → TTY Themes — vt.default_* colour mockups + apply — install manually: pacman -S ${missing[*]}"
+    warn "OmaVT needs ${missing[*]} for: Appearance → Extenders → TTY — vt.default_* colour mockups + apply — install manually: pacman -S ${missing[*]}"
     return 1
   fi
 
-  note "OmaVT needs ${missing[*]} — Style → TTY Themes — vt.default_* colour mockups + apply"
+  note "OmaVT needs ${missing[*]} — Appearance → Extenders → TTY — vt.default_* colour mockups + apply"
   # Inline pkg add (interactive or --yes). Prompts stay in this TTY.
   printf '%s\n' "OmaVT"
   printf '%s\n' "io.github.alxwolfenstein97.omavt"
-  printf '%s\n' "Style → TTY Themes — vt.default_* colour mockups + apply"
+  printf '%s\n' "Appearance → Extenders → TTY — vt.default_* colour mockups + apply"
   printf '%s\n' "────────────────────────────────"
   printf '%s\n' "Needs to install (sudo / pacman) — only packages missing on this system:"
   for pkg in "${missing[@]}"; do
     case $pkg in
-      python-pillow) printf '  • %s — %s\n' "$pkg" 'draw TTY Themes carousel mockups' ;;
+      python-pillow) printf '  • %s — %s\n' "$pkg" 'draw TTY carousel mockups' ;;
       *) printf '  • %s\n' "$pkg" ;;
     esac
   done
@@ -174,14 +174,14 @@ pull_pkgs() {
 
 
 
-# Pillow draws Style carousel mockups — install before warming previews.
+# Pillow draws Appearance carousel mockups — install before warming previews.
 # Interactive / --yes: pkg add in this TTY. Quiet Service skips pkgs (no_pkgs).
 if (( ! no_pkgs )); then
   pull_pkgs python-pillow || true
 fi
 
 if (( arm_style_menu )); then
-# Style extenders share omarchy-menu.jsonc — flock so parallel Services don't
+# Extenders share omarchy-menu.jsonc — flock so parallel Services don't
 # clobber each other. Interactive: always install-menu. Quiet: only if our
 # markers are absent (no rewrite/normalize every boot). Refresh only when written.
 menu_lock="$HOME/.local/state/omarchy/style-extenders/menu.lock"
@@ -190,7 +190,7 @@ menu_file="$HOME/.config/omarchy/extensions/omarchy-menu.jsonc"
 mkdir -p "$(dirname "$menu_lock")"
 (
   flock 9
-  # Scrub Style rows for siblings removed via plugin remove (no uninstall.sh).
+  # Scrub Extender rows for siblings removed via plugin remove (no uninstall.sh).
   scrubbed=0
   scrub_out=$(python3 - <<'ORPHANSCRUB' || true
 from pathlib import Path
@@ -216,6 +216,8 @@ for marker, pid in pairs:
     if start not in text:
         continue
     text = re.sub(re.escape(start) + r".*?" + re.escape(end) + r"\n?", "", text, flags=re.S)
+if not re.search(r'"appearance\.extenders\.[^"]+"', text):
+    text = re.sub(r'^[ \t]*"appearance\.extenders"[ \t]*:[ \t]*\{[^\n]*\},[ \t]*\n?', '', text, flags=re.M)
 if text != orig:
     menu.write_text(text, encoding="utf-8")
     print("scrubbed-orphan-style-menus")
@@ -246,8 +248,8 @@ ORPHANSCRUB
           if (( do_refresh )); then
             touch "$stamp"
             omarchy-shell -q omarchy.menu refresh >/dev/null 2>&1 || true
-            # Quiet Service installs need rescan too — otherwise Style rows
-            # (esp. OBS Themes) stay invisible until a manual shell restart.
+            # Quiet Service installs need rescan too — otherwise Extender rows
+            # (esp. OBS) stay invisible until a manual shell restart.
             omarchy-shell -q shell rescanPlugins >/dev/null 2>&1 || true
           fi
         fi
@@ -271,10 +273,10 @@ ORPHANSCRUB
   fi
 ) 9>"$menu_lock"
 else
-  note "Style menu skipped — run: $here/tools/install-style-menu.sh"
+  note "Appearance menu skipped — run: $here/tools/install-style-menu.sh"
 fi
 if (( ! quiet )); then
-  note "Style → TTY Themes is live; if the row is missing, run: omarchy-shell shell rescanPlugins"
+  note "Appearance → Extenders → TTY is live; if the row is missing, run: omarchy-shell shell rescanPlugins"
 fi
 
 if (( ! quiet )); then
@@ -287,6 +289,6 @@ if command -v omarchy >/dev/null 2>&1; then
   omarchy plugin enable "$plugin_id" >/dev/null 2>&1 || true
 fi
 
-note "done — Style > TTY Themes, or '$here/bin/omavt switcher'"
-note "Style picker uses Omarchy's floating terminal for sudo on apply (like Unlock)"
+note "done — Appearance > Extenders > TTY, or '$here/bin/omavt switcher'"
+note "Appearance picker uses Omarchy's floating terminal for sudo on apply (like Unlock)"
 exit 0

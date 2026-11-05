@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""OmaVT — Style-menu TTY palettes from any Omarchy theme.
+"""OmaVT — Appearance-menu TTY palettes from any Omarchy theme.
 
 Discovers every theme with a colors.toml (no extra theme assets required),
-renders centered VT-session mockups for the Style carousel, and manages only
+renders centered VT-session mockups for the Appearance carousel, and manages only
 a limine-entry-tool.d drop-in of vt.default_* / vt.color kernel parameters.
 Custom cmdline (iommu, root=, resume=, …) lives elsewhere and is never opened.
 Default removes that colour drop-in only — it does not rewrite Omarchy stock
@@ -368,7 +368,7 @@ def render_dropin(palette: dict[str, Any]) -> str:
         BLOCK_START,
         f"# Omarchy TTY palette — managed by omavt ({PLUGIN_ID})",
         f"# theme: {palette['slug']}",
-        "# Style → TTY Themes. This file is the only thing omavt writes.",
+        "# Appearance → Extenders → TTY. This file is the only thing omavt writes.",
         "# Removing it (Default) drops vt.default_* / vt.color only —",
         "# /etc/default/limine and omarchy-defaults.conf are never touched.",
         f'KERNEL_CMDLINE[default]+=" {params}"',
@@ -423,7 +423,7 @@ def read_dropin() -> str | None:
 
 
 def read_dropin_nosudo() -> str | None:
-    """Picker path only — never block Style open on a sudo password."""
+    """Picker path only — never block the menu open on a sudo password."""
     path = dropin_path()
     try:
         if path.is_file() and os.access(path, os.R_OK):
@@ -639,7 +639,7 @@ def render_mockup(
     Layout tracked from a default dark TTY QEMU capture (getty on tty1 after
     SDDM off — nested Omarchy cannot Ctrl+Alt+F3). Same session script as
     OmaTTY: login as wolf, then the single-GPU passthrough starter. Not a
-    live VT framebuffer capture. Content stays inside SAFE_X for the Style
+    live VT framebuffer capture. Content stays inside SAFE_X for the Appearance
     carousel crop.
     """
     w, h = size
@@ -661,7 +661,7 @@ def render_mockup(
     line_h = 34
     max_x = w - SAFE_X
 
-    # Keep session lines in sync with OmaTTY (sibling Style plugin).
+    # Keep session lines in sync with OmaTTY (sibling extender).
     banner = tty_banner("tty1")
     prompt = "~ > "
     command = "sudo /home/wolf/vm-space/windows-11/single-gpu-start.sh"
@@ -899,10 +899,10 @@ STYLE_EXTENDER_BLOCKS = (
 
 
 def normalize_style_extender_menu_order(menu_path: Path) -> None:
-    """Keep Style extender rows in a stable file order.
+    """Keep Extender rows in a stable file order.
 
     Each plugin's install-menu inserts at the top of the extensions object, so
-    whichever service warms last wins the first slot and the Style submenu
+    whichever service warms last wins the first slot and the Extenders submenu
     shuffles. Extract known blocks and rewrite them in a fixed sequence.
     """
     if not menu_path.is_file():
@@ -937,16 +937,41 @@ def normalize_style_extender_menu_order(menu_path: Path) -> None:
     if new != old:
         atomic_write(menu_path, new)
 
+EXTENDER_PARENT = '  "appearance.extenders": {"icon": "\U000f03d8", "label": "Extenders"},'
+
+
+def ensure_extender_parent(content: str) -> str:
+    """Define the shared Appearance → Extenders row once, before its children."""
+    if re.search(r'^[ \t]*"appearance\.extenders"[ \t]*:', content, re.M):
+        return content
+    brace = content.find("{")
+    if brace < 0:
+        raise RuntimeError("menu config has no root object")
+    return content[: brace + 1] + "\n" + EXTENDER_PARENT + content[brace + 1 :]
+
+
+def prune_extender_parent(content: str) -> str:
+    """Drop the shared parent once the last extender child is gone."""
+    if re.search(r'"appearance\.extenders\.[^"]+"', content):
+        return content
+    return re.sub(
+        r'^[ \t]*"appearance\.extenders"[ \t]*:[ \t]*\{[^\n]*\},[ \t]*\n?',
+        "",
+        content,
+        flags=re.M,
+    )
+
+
 def install_menu_entry() -> None:
     path = paths()["menu"]
     content = path.read_text(encoding="utf-8") if path.is_file() else "{\n}\n"
     content = remove_marked(content, MENU_START, MENU_END)
     entries = [
         (
-            "style.tty-theme",
+            "appearance.extenders.tty",
             {
                 "icon": "󰯂",
-                "label": "TTY Themes",
+                "label": "TTY",
                 "aliases": ["tty-theme", "vt", "console-color", "vtrgb"],
                 "description": "Preview unlock-style TTY mockups and append vt.default_* colours via limine-entry-tool.d (sudo)",
                 "action": menu_action(),
@@ -961,7 +986,8 @@ def install_menu_entry() -> None:
         body.append(f"  {json.dumps(key)}: {json.dumps(value, ensure_ascii=False)},")
     body.append(MENU_END)
     insertion = "\n".join(body) + "\n"
-    atomic_write(path, content[: brace + 1] + "\n" + insertion + content[brace + 1 :])
+    updated = content[: brace + 1] + "\n" + insertion + content[brace + 1 :]
+    atomic_write(path, ensure_extender_parent(updated))
 
 
     normalize_style_extender_menu_order(path)
@@ -973,7 +999,8 @@ def uninstall_menu_entry() -> None:
         return
     content = path.read_text(encoding="utf-8")
     if MENU_START in content:
-        atomic_write(path, remove_marked(content, MENU_START, MENU_END))
+        content = remove_marked(content, MENU_START, MENU_END)
+        atomic_write(path, prune_extender_parent(content))
 
 
 def cmd_list(_: argparse.Namespace) -> int:
@@ -1103,10 +1130,10 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("switcher", help="Open image picker; print chosen slug").set_defaults(
         func=cmd_switcher
     )
-    sub.add_parser("install-menu", help="Add Style → TTY Themes").set_defaults(
+    sub.add_parser("install-menu", help="Add Appearance → Extenders → TTY").set_defaults(
         func=cmd_install_menu
     )
-    sub.add_parser("uninstall-menu", help="Remove Style → TTY Themes").set_defaults(
+    sub.add_parser("uninstall-menu", help="Remove Appearance → Extenders → TTY").set_defaults(
         func=cmd_uninstall_menu
     )
 

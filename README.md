@@ -1,7 +1,7 @@
 # OmaVT
 
 **Omarchy themes your desktop. OmaVT carries the same palette into the virtual
-console — VT-session mockups in the Style menu, then `vt.default_*` on the
+console — VT-session mockups in the Appearance menu, then `vt.default_*` on the
 kernel command line.**
 
 ![OmaVT — Hackerman TTY session mockup with VT palette strip](preview.png)
@@ -27,7 +27,7 @@ accessibility; OmaVT is the palette half of that story.
 
 ## Goals (and honest limits)
 
-These Style plugins extend Omarchy’s theme system **without requiring theme
+These plugins extend Omarchy’s theme system **without requiring theme
 authors — or you — to ship anything extra**. Official themes, your forks, and
 third-party installs all work as long as they have a `colors.toml`. That
 “every theme” contract is intentional: once the desktop can follow farther,
@@ -40,7 +40,7 @@ making *another* theme is more worth it. Longer origin / stop-line:
 | Extreme compatibility | Stock + user + foreign themes all appear in the picker automatically. |
 | True Theme Vibe | Top-left getty session + 16-colour strip from `colors.toml` / VGA Default. **Much closer** to a real TTY than a framed fake window — still not a live `/dev/tty` capture. |
 | Carousel-safe | Mockups are 1536×864 with ~8% side inset (SAFE_X=120). Session stays top-left *inside* that margin so the 768×475 tile crop does not shave getty text. |
-| Snappy pickers | Mockups warm in parallel across CPU cores and **skip tiles whose `colors.toml` (and layout version) haven’t changed** — reopen is near-instant. On par with Omarchy’s stock Style carousels. |
+| Snappy pickers | Mockups warm in parallel across CPU cores and **skip tiles whose `colors.toml` (and layout version) haven’t changed** — reopen is near-instant. On par with Omarchy’s stock Appearance carousels. |
 
 We are **not** putting WYSIWYG screenshots in themes. Themes stay palette-only;
 OmaVT draws the session itself. Same True Theme Vibe idea as
@@ -56,7 +56,7 @@ OmaOBS.
 
 ## What you get
 
-- **Style → TTY Themes** — labelled image picker (`omarchy-menu-images`).
+- **Appearance → Extenders → TTY** — labelled image picker (`omarchy-menu-images`).
 - **Live theme discovery** — every Omarchy theme with a `colors.toml`.
 - **Default tile** — stock VGA. Picking it **removes only** the OmaVT colour
   drop-in so you can switch back without rewriting anything else.
@@ -97,9 +97,9 @@ Hero at the top is the same session on **Hackerman**. Pair with OmaTTY when you
 want the face size to match that path too.
 
 
-## Marketplace consent (hooks & Style menu)
+## Marketplace consent (hooks & Appearance menu)
 
-Installing the plugin only drops the code. Style menu rows and theme-set hooks
+Installing the plugin only drops the code. Appearance menu rows and theme-set hooks
 edit your Omarchy config, so they stay **opt-in**.
 
 **Fast path (no prompts)** — from your home folder:
@@ -109,7 +109,7 @@ edit your Omarchy config, so they stay **opt-in**.
 ```
 
 `--yes` means: I consent — arm everything this plugin supports, skip Y/n. Interactive `./install.sh` (no `--yes`) still asks — Workshop-safe; `--yes` / arm-all are optional shortcuts.
-Style menu helper: `./tools/install-style-menu.sh --yes`.
+Appearance menu helper: `./tools/install-style-menu.sh --yes`.
 
 **Arm the whole family in one shot** (arms only what’s already installed — omit any `plugin add` you don’t want):
 
@@ -140,7 +140,7 @@ drop may fail and stay if something else still requires the package):
 Harmless sticky note at `~/.local/state/omarchy/<plugin>/uninstalled`. The next
 install (quiet or loud) uses it to clear same-session `/run` package-prompt
 stamps / shared Pillow claims, then deletes the note. Logout/reboot clears those
-stamps anyway. Style stays off after wipe because armed state is gone — not
+stamps anyway. The menu entry stays off after wipe because armed state is gone — not
 because of the stone. Normal boom-out → loud boom-in (arm-all) does **not** need
 `--purge-tombstones`.
 
@@ -167,7 +167,7 @@ omarchy plugin add https://github.com/AlxWolfenstein97/omavt.git --enable
 ~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/install.sh
 ```
 
-That clones into `~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt` and arms hooks / Style after you
+That clones into `~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt` and arms hooks and the Appearance menu after you
 confirm. Skip prompts: `~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/install.sh --yes`.
 
 Or from an existing checkout:
@@ -183,7 +183,7 @@ omarchy plugin enable io.github.alxwolfenstein97.omavt
 1. `bin/omavt-switcher` renders PNG mockups into
    `~/.cache/omarchy/omavt/previews/` (including `default.png`), then opens
    `omarchy-menu-images`.
-2. On selection, Style launches Omarchy’s floating terminal running `omavt-set`
+2. On selection, the menu launches Omarchy’s floating terminal running `omavt-set`
    (same privilege pattern as Unlock). Install / uninstall / arm-all / wipe use
    the same TTY.
 3. A themed pick writes `/etc/limine-entry-tool.d/omavt-colors.conf` and runs
@@ -216,9 +216,9 @@ omavt current
 | `./uninstall.sh` then disable / remove | Menu + cache/state gone. Quiet Service only restores what was already armed — after wipe that’s nothing until a loud install. Then this TTY runs `omavt set default` (sudo) to strip vt paint + optional y/N `pkg drop` of packages this install recorded pulling. |
 | `omarchy pkg drop python-pillow` | Optional — only if this install recorded pulling it; may fail/stay if something else still requires it. TTY prompts show why + `pacman Required By`. |
 
-Quiet Service install (`--quiet`): restores already-armed wiring only. Deps + Style consent come from interactive `install.sh`, `--yes`, or
+Quiet Service install (`--quiet`): restores already-armed wiring only. Deps + menu consent come from interactive `install.sh`, `--yes`, or
 family `arm-all-family.sh`. Menu written only if `// omavt:start` markers are
-missing; also scrubs orphan Style rows for sibling plugins whose dirs were deleted
+missing; also scrubs orphan Extender rows for sibling plugins whose dirs were deleted
 without `uninstall.sh`.
 
 Omarchy `plugin remove` never runs `uninstall.sh` (dir delete only) — always
@@ -234,7 +234,7 @@ Omarchy `plugin remove` never runs `uninstall.sh` (dir delete only) — always
 
 ```sh
 omarchy plugin add https://github.com/AlxWolfenstein97/omavt.git --enable
-# Style → TTY Themes appears without a shell restart; carousel tiles warm (needs python-pillow)
+# Appearance → Extenders → TTY appears without a shell restart; carousel tiles warm (needs python-pillow)
 # Pick a loud theme; confirm the surface updates (Ctrl+Alt+F3 colours)
 # plugin add alone + reboot → quiet restores wiring only; run install.sh / arm-all for deps/hooks
 # Parallel install.sh: shared Pillow flock; siblings only ask for their own missing pkgs
@@ -256,13 +256,13 @@ bash ~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/check.sh
   Demo user `wolf`, path into `…/windows-11/single-gpu-start.sh`. Compare to
   [`preview-default.png`](preview-default.png). Same session script as OmaTTY.
 - Hero mockup: official **Hackerman** theme. Default tile: stock VGA.
-- Sibling Style plugins: [OmaBoot](https://github.com/AlxWolfenstein97/omaboot),
+- Sibling extenders: [OmaBoot](https://github.com/AlxWolfenstein97/omaboot),
   [OmaTTY](https://github.com/AlxWolfenstein97/omatty),
   [OmaOBS](https://github.com/AlxWolfenstein97/omaobs),
   [OmaCursor](https://github.com/AlxWolfenstein97/omacursor),
   [OmaHud](https://github.com/AlxWolfenstein97/omahud),
   [Chroma](https://github.com/AlxWolfenstein97/chroma).
-- [Omarchy](https://omarchy.org/) — Style → Unlock pattern, theme colours, and
+- [Omarchy](https://omarchy.org/) — Appearance → Unlock pattern, theme colours, and
   Limine entry-tool drop-ins this plugin appends carefully.
 
 ## License

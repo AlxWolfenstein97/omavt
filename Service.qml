@@ -4,7 +4,7 @@ import Quickshell.Io
 // OmaVT service plugin.
 //
 // Palette patching lives in bin/omavt. This component only re-runs the
-// installer at shell start so Style → TTY Themes comes back after a refresh.
+// installer at shell start so Appearance → Extenders → TTY comes back after a refresh.
 // There is intentionally no theme-set hook — kernel cmdline needs sudo.
 Item {
     id: root

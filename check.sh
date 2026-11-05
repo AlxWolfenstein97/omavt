@@ -136,8 +136,10 @@ else
 fi
 
 "$here/bin/omavt" install-menu >/dev/null
-grep -q 'style.tty-theme' "$tmp/.config/omarchy/extensions/omarchy-menu.jsonc" && pass "menu entry" || bad "menu entry"
-grep -q 'TTY Themes' "$tmp/.config/omarchy/extensions/omarchy-menu.jsonc" && pass "menu label" || bad "menu label"
+menu="$tmp/.config/omarchy/extensions/omarchy-menu.jsonc"
+grep -q 'appearance.extenders.tty' "$menu" && pass "menu entry" || bad "menu entry"
+grep -q '"label": "TTY"' "$menu" && pass "menu label" || bad "menu label"
+grep -q '"appearance.extenders"' "$menu" && pass "menu parent" || bad "menu parent"
 
 if command -v omarchy >/dev/null 2>&1; then
   if omarchy plugin validate "$here" >/dev/null 2>&1; then
