@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.alxwolfenstein97.omavt",
   "name": "OmaVT",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "author": "AlxWolfenstein97",
   "license": "MIT",
   "description": "Appearance \u2192 Extenders \u2192 TTYColors: TTY vt.default_* from colors.toml. Not broken \u2014 read the README to arm the Appearance menu after install.",
