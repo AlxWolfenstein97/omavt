@@ -137,8 +137,8 @@ fi
 
 "$here/bin/omavt" install-menu >/dev/null
 menu="$tmp/.config/omarchy/extensions/omarchy-menu.jsonc"
-grep -q 'appearance.extenders.tty' "$menu" && pass "menu entry" || bad "menu entry"
-grep -q '"label": "TTY"' "$menu" && pass "menu label" || bad "menu label"
+grep -q 'appearance.extenders.ttycolors' "$menu" && pass "menu entry" || bad "menu entry"
+grep -q '"label": "TTYColors"' "$menu" && pass "menu label" || bad "menu label"
 grep -q '"appearance.extenders"' "$menu" && pass "menu parent" || bad "menu parent"
 
 if command -v omarchy >/dev/null 2>&1; then

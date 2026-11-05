@@ -56,7 +56,7 @@ OmaOBS.
 
 ## What you get
 
-- **Appearance → Extenders → TTY** — labelled image picker (`omarchy-menu-images`).
+- **Appearance → Extenders → TTYColors** — labelled image picker (`omarchy-menu-images`).
 - **Live theme discovery** — every Omarchy theme with a `colors.toml`.
 - **Default tile** — stock VGA. Picking it **removes only** the OmaVT colour
   drop-in so you can switch back without rewriting anything else.
@@ -234,7 +234,7 @@ Omarchy `plugin remove` never runs `uninstall.sh` (dir delete only) — always
 
 ```sh
 omarchy plugin add https://github.com/AlxWolfenstein97/omavt.git --enable
-# Appearance → Extenders → TTY appears without a shell restart; carousel tiles warm (needs python-pillow)
+# Appearance → Extenders → TTYColors appears without a shell restart; carousel tiles warm (needs python-pillow)
 # Pick a loud theme; confirm the surface updates (Ctrl+Alt+F3 colours)
 # plugin add alone + reboot → quiet restores wiring only; run install.sh / arm-all for deps/hooks
 # Parallel install.sh: shared Pillow flock; siblings only ask for their own missing pkgs

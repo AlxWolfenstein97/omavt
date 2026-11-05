@@ -76,7 +76,7 @@ menu_file="${menu_file:-$HOME/.config/omarchy/extensions/omarchy-menu.jsonc}"
 [[ -f $state/armed-style-menu ]] && arm_style_menu=1
 if (( ! quiet && ! assume_yes )); then
   if (( ! arm_style_menu )); then
-    printf '%s' "omavt: install Appearance → Extenders → TTY menu entry? [Y/n] "
+    printf '%s' "omavt: install Appearance → Extenders → TTYColors menu entry? [Y/n] "
     read -r _ans || _ans=
     case ${_ans:-Y} in [nN]|[nN][oO]) arm_style_menu=0 ;; *) arm_style_menu=1 ;; esac
   fi
@@ -138,15 +138,15 @@ pull_pkgs() {
   fi
 
   if ! command -v omarchy >/dev/null 2>&1; then
-    warn "OmaVT needs ${missing[*]} for: Appearance → Extenders → TTY — vt.default_* colour mockups + apply — install manually: pacman -S ${missing[*]}"
+    warn "OmaVT needs ${missing[*]} for: Appearance → Extenders → TTYColors — vt.default_* colour mockups + apply — install manually: pacman -S ${missing[*]}"
     return 1
   fi
 
-  note "OmaVT needs ${missing[*]} — Appearance → Extenders → TTY — vt.default_* colour mockups + apply"
+  note "OmaVT needs ${missing[*]} — Appearance → Extenders → TTYColors — vt.default_* colour mockups + apply"
   # Inline pkg add (interactive or --yes). Prompts stay in this TTY.
   printf '%s\n' "OmaVT"
   printf '%s\n' "io.github.alxwolfenstein97.omavt"
-  printf '%s\n' "Appearance → Extenders → TTY — vt.default_* colour mockups + apply"
+  printf '%s\n' "Appearance → Extenders → TTYColors — vt.default_* colour mockups + apply"
   printf '%s\n' "────────────────────────────────"
   printf '%s\n' "Needs to install (sudo / pacman) — only packages missing on this system:"
   for pkg in "${missing[@]}"; do
@@ -229,7 +229,7 @@ ORPHANSCRUB
   # block, so marker presence alone is not enough: rewrite once after an
   # upgrade until the new Appearance → Extenders key is there.
   if (( quiet )) && [[ -f $menu_file ]] && grep -qF '// omavt:start' "$menu_file" \
-     && grep -qF '"appearance.extenders.tty"' "$menu_file"; then
+     && grep -qF '"appearance.extenders.ttycolors"' "$menu_file"; then
     write_menu=0
   fi
   if (( write_menu )); then
@@ -280,7 +280,7 @@ else
   note "Appearance menu skipped — run: $here/tools/install-style-menu.sh"
 fi
 if (( ! quiet )); then
-  note "Appearance → Extenders → TTY is live; if the row is missing, run: omarchy-shell shell rescanPlugins"
+  note "Appearance → Extenders → TTYColors is live; if the row is missing, run: omarchy-shell shell rescanPlugins"
 fi
 
 if (( ! quiet )); then
@@ -293,6 +293,6 @@ if command -v omarchy >/dev/null 2>&1; then
   omarchy plugin enable "$plugin_id" >/dev/null 2>&1 || true
 fi
 
-note "done — Appearance > Extenders > TTY, or '$here/bin/omavt switcher'"
+note "done — Appearance > Extenders > TTYColors, or '$here/bin/omavt switcher'"
 note "Appearance picker uses Omarchy's floating terminal for sudo on apply (like Unlock)"
 exit 0

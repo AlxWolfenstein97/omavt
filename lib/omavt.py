@@ -368,7 +368,7 @@ def render_dropin(palette: dict[str, Any]) -> str:
         BLOCK_START,
         f"# Omarchy TTY palette — managed by omavt ({PLUGIN_ID})",
         f"# theme: {palette['slug']}",
-        "# Appearance → Extenders → TTY. This file is the only thing omavt writes.",
+        "# Appearance → Extenders → TTYColors. This file is the only thing omavt writes.",
         "# Removing it (Default) drops vt.default_* / vt.color only —",
         "# /etc/default/limine and omarchy-defaults.conf are never touched.",
         f'KERNEL_CMDLINE[default]+=" {params}"',
@@ -968,11 +968,11 @@ def install_menu_entry() -> None:
     content = remove_marked(content, MENU_START, MENU_END)
     entries = [
         (
-            "appearance.extenders.tty",
+            "appearance.extenders.ttycolors",
             {
                 "icon": "󰯂",
-                "label": "TTY",
-                "aliases": ["tty-theme", "vt", "console-color", "vtrgb"],
+                "label": "TTYColors",
+                "aliases": ["ttycolors", "tty-theme", "tty", "colors", "colours", "vt", "console-color", "vtrgb"],
                 "description": "Preview unlock-style TTY mockups and append vt.default_* colours via limine-entry-tool.d (sudo)",
                 "action": menu_action(),
             },
@@ -1130,10 +1130,10 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("switcher", help="Open image picker; print chosen slug").set_defaults(
         func=cmd_switcher
     )
-    sub.add_parser("install-menu", help="Add Appearance → Extenders → TTY").set_defaults(
+    sub.add_parser("install-menu", help="Add Appearance → Extenders → TTYColors").set_defaults(
         func=cmd_install_menu
     )
-    sub.add_parser("uninstall-menu", help="Remove Appearance → Extenders → TTY").set_defaults(
+    sub.add_parser("uninstall-menu", help="Remove Appearance → Extenders → TTYColors").set_defaults(
         func=cmd_uninstall_menu
     )
 
