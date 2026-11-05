@@ -99,7 +99,7 @@ omarchy-shell -q shell rescanPlugins >/dev/null 2>&1 || true
 if (( assume_yes )); then
   note "full wipe (--yes): resetting VT paint inline"
   if "$here/bin/omavt" set default; then
-    note "vt colour drop-in removed"
+    note "vt color drop-in removed"
   else
     note "Default failed — omavt-colors.conf may still be present"
   fi
@@ -112,7 +112,7 @@ if (( assume_yes )); then
 else
   note "resetting VT paint (may prompt for sudo)"
   if "$here/bin/omavt" set default; then
-    note "vt colour drop-in removed"
+    note "vt color drop-in removed"
   else
     note "Default failed — omavt-colors.conf may still be present"
   fi

@@ -138,15 +138,15 @@ pull_pkgs() {
   fi
 
   if ! command -v omarchy >/dev/null 2>&1; then
-    warn "OmaVT needs ${missing[*]} for: Appearance → Extenders → TTYColors — vt.default_* colour mockups + apply — install manually: pacman -S ${missing[*]}"
+    warn "OmaVT needs ${missing[*]} for: Appearance → Extenders → TTYColors — vt.default_* color mockups + apply — install manually: pacman -S ${missing[*]}"
     return 1
   fi
 
-  note "OmaVT needs ${missing[*]} — Appearance → Extenders → TTYColors — vt.default_* colour mockups + apply"
+  note "OmaVT needs ${missing[*]} — Appearance → Extenders → TTYColors — vt.default_* color mockups + apply"
   # Inline pkg add (interactive or --yes). Prompts stay in this TTY.
   printf '%s\n' "OmaVT"
   printf '%s\n' "io.github.alxwolfenstein97.omavt"
-  printf '%s\n' "Appearance → Extenders → TTYColors — vt.default_* colour mockups + apply"
+  printf '%s\n' "Appearance → Extenders → TTYColors — vt.default_* color mockups + apply"
   printf '%s\n' "────────────────────────────────"
   printf '%s\n' "Needs to install (sudo / pacman) — only packages missing on this system:"
   for pkg in "${missing[@]}"; do

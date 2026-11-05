@@ -11,10 +11,10 @@ kernel command line.**
 Stock Omarchy paints Hyprland, graphical terminals, Plymouth unlock, and (with
 OmaBoot) the Limine menu. Drop to Ctrl+Alt+F3 after a bad splash, a single-GPU
 passthrough VM hop, or just because you like living on `/dev/tty*`, and you get
-classic VGA grey. Your desktop wears Vantablack or Hackerman; the console still
+classic VGA gray. Your desktop wears Vantablack or Hackerman; the console still
 looks like 1987.
 
-OmaVT closes that gap so the **same colours** show up when:
+OmaVT closes that gap so the **same colors** show up when:
 
 - Plymouth has been tinkered into an early quit and you land on a text prompt
 - You leave a VFIO / VM-curator machine and the TTY hops you back toward SDDM
@@ -36,9 +36,9 @@ making *another* theme is more worth it. Longer origin / stop-line:
 
 | Goal | What that means here |
 |------|----------------------|
-| Zero extra assets | No `preview-tty.png`, no per-theme VT files. Colours come from `colors.toml` alone. |
+| Zero extra assets | No `preview-tty.png`, no per-theme VT files. Colors come from `colors.toml` alone. |
 | Extreme compatibility | Stock + user + foreign themes all appear in the picker automatically. |
-| True Theme Vibe | Top-left getty session + 16-colour strip from `colors.toml` / VGA Default. **Much closer** to a real TTY than a framed fake window — still not a live `/dev/tty` capture. |
+| True Theme Vibe | Top-left getty session + 16-color strip from `colors.toml` / VGA Default. **Much closer** to a real TTY than a framed fake window — still not a live `/dev/tty` capture. |
 | Carousel-safe | Mockups are 1536×864 with ~8% side inset (SAFE_X=120). Session stays top-left *inside* that margin so the 768×475 tile crop does not shave getty text. |
 | Snappy pickers | Mockups warm in parallel across CPU cores and **skip tiles whose `colors.toml` (and layout version) haven’t changed** — reopen is near-instant. On par with Omarchy’s stock Appearance carousels. |
 
@@ -48,7 +48,7 @@ OmaVT draws the session itself. Same True Theme Vibe idea as
 
 ### Why a picker (and no theme-set hook)?
 
-VT colours hitch a ride on the kernel cmdline and want a password — not a
+VT colors hitch a ride on the kernel cmdline and want a password — not a
 silent sync on every desktop theme flip. The carousel exists so you can preview
 the console palette across **all** installed themes without rebooting for each
 guess. Pair with OmaTTY for fonts; same preview-first pattern as OmaBoot /
@@ -58,7 +58,7 @@ OmaOBS.
 
 - **Appearance → Extenders → TTYColors** — labelled image picker (`omarchy-menu-images`).
 - **Live theme discovery** — every Omarchy theme with a `colors.toml`.
-- **Default tile** — stock VGA. Picking it **removes only** the OmaVT colour
+- **Default tile** — stock VGA. Picking it **removes only** the OmaVT color
   drop-in so you can switch back without rewriting anything else.
 - **Safe cmdline patch** — one file,
   `/etc/limine-entry-tool.d/omavt-colors.conf`, appending
@@ -72,7 +72,7 @@ OmaOBS.
 ## Mockups: True Theme Vibe (shared session with OmaTTY)
 
 Limine / TTY have no headless renderer worth depending on, and themes will not
-ship console screenshots. The drawer paints one getty session, then recolours
+ship console screenshots. The drawer paints one getty session, then recolors
 it from each theme’s palette (plus a VGA **Default** tile).
 
 **How it was done**
@@ -81,10 +81,10 @@ it from each theme’s palette (plus a VGA **Default** tile).
    hops the **host**). Disable SDDM in the guest, land on **tty1**, log in as
    a demo user, run the single-GPU passthrough starter path.
 2. Trace that chrome in Pillow: top-left banner / login / `~ >` command, block
-   cursor, 16-colour strip at the bottom. Same session script as
+   cursor, 16-color strip at the bottom. Same session script as
    [OmaTTY](https://github.com/AlxWolfenstein97/omatty) (fonts use real PSF
    glyphs on the same lines).
-3. Recolour from every installed theme’s `colors.toml`. Themes stay
+3. Recolor from every installed theme’s `colors.toml`. Themes stay
    palette-only; the plugin owns the art.
 
 **Compare — real default TTY vs generated Default mockup:**
@@ -203,7 +203,7 @@ omavt preview              # warm all mockups
 omavt switcher             # picker → prints slug
 omavt show tokyo-night     # print managed drop-in
 omavt set tokyo-night      # write drop-in (sudo)
-omavt set default          # remove colour drop-in only
+omavt set default          # remove color drop-in only
 omavt set tokyo-night --dry-run
 omavt current
 ```
@@ -212,7 +212,7 @@ omavt current
 
 | Action | What happens |
 |--------|----------------|
-| `omarchy plugin disable …` | Shell service stops. No theme-set hook — last vt colour drop-in stays. |
+| `omarchy plugin disable …` | Shell service stops. No theme-set hook — last vt color drop-in stays. |
 | `./uninstall.sh` then disable / remove | Menu + cache/state gone. Quiet Service only restores what was already armed — after wipe that’s nothing until a loud install. Then this TTY runs `omavt set default` (sudo) to strip vt paint + optional y/N `pkg drop` of packages this install recorded pulling. |
 | `omarchy pkg drop python-pillow` | Optional — only if this install recorded pulling it; may fail/stay if something else still requires it. TTY prompts show why + `pacman Required By`. |
 
@@ -222,7 +222,7 @@ missing; also scrubs orphan Extender rows for sibling plugins whose dirs were de
 without `uninstall.sh`.
 
 Omarchy `plugin remove` never runs `uninstall.sh` (dir delete only) — always
-`./uninstall.sh` first so this TTY can reset TTY colours.
+`./uninstall.sh` first so this TTY can reset TTY colors.
 
 **Full wipe** — one shot (`--yes` skips pkg Y/n, ledger-only drops of packages this install recorded pulling (may fail and stay if something else still needs them — e.g. Goverlay after Pillow), and removes the plugin):
 
@@ -235,7 +235,7 @@ Omarchy `plugin remove` never runs `uninstall.sh` (dir delete only) — always
 ```sh
 omarchy plugin add https://github.com/AlxWolfenstein97/omavt.git --enable
 # Appearance → Extenders → TTYColors appears without a shell restart; carousel tiles warm (needs python-pillow)
-# Pick a loud theme; confirm the surface updates (Ctrl+Alt+F3 colours)
+# Pick a loud theme; confirm the surface updates (Ctrl+Alt+F3 colors)
 # plugin add alone + reboot → quiet restores wiring only; run install.sh / arm-all for deps/hooks
 # Parallel install.sh: shared Pillow flock; siblings only ask for their own missing pkgs
 # ./uninstall.sh → this TTY: omavt set default + optional pkg drop
@@ -262,7 +262,7 @@ bash ~/.config/omarchy/plugins/io.github.alxwolfenstein97.omavt/check.sh
   [OmaCursor](https://github.com/AlxWolfenstein97/omacursor),
   [OmaHud](https://github.com/AlxWolfenstein97/omahud),
   [Chroma](https://github.com/AlxWolfenstein97/chroma).
-- [Omarchy](https://omarchy.org/) — Appearance → Unlock pattern, theme colours, and
+- [Omarchy](https://omarchy.org/) — Appearance → Unlock pattern, theme colors, and
   Limine entry-tool drop-ins this plugin appends carefully.
 
 ## License

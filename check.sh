@@ -98,7 +98,7 @@ grep -q 'vt.default_red=' "$tmp/limine-entry-tool.d/omavt-colors.conf" && pass "
 grep -q 'vt.default_grn=' "$tmp/limine-entry-tool.d/omavt-colors.conf" && pass "vt.default_grn" || bad "vt.default_grn"
 grep -q 'vt.default_blu=' "$tmp/limine-entry-tool.d/omavt-colors.conf" && pass "vt.default_blu" || bad "vt.default_blu"
 grep -q 'vt.color=0x07' "$tmp/limine-entry-tool.d/omavt-colors.conf" && pass "vt.color" || bad "vt.color"
-# darker_background #04020C → 4,2,12 as colour 0
+# darker_background #04020C → 4,2,12 as color 0
 grep -q 'vt.default_red=4,' "$tmp/limine-entry-tool.d/omavt-colors.conf" && pass "red channel starts 4" || bad "red channel starts 4"
 
 # Custom / Omarchy stock files must be byte-identical after set.
@@ -112,7 +112,7 @@ cmp -s "$tmp/limine-entry-tool.d/omarchy-defaults.conf" "$tmp/omarchy-defaults.o
 blocks=$(grep -c '# omavt:start' "$tmp/limine-entry-tool.d/omavt-colors.conf" || true)
 [[ $blocks -eq 1 ]] && pass "single block after re-set" || bad "single block after re-set"
 
-# Default removes only the colour drop-in.
+# Default removes only the color drop-in.
 if "$here/bin/omavt" set default --quiet; then
   pass "set default"
 else

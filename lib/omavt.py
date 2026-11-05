@@ -5,7 +5,7 @@ Discovers every theme with a colors.toml (no extra theme assets required),
 renders centered VT-session mockups for the Appearance carousel, and manages only
 a limine-entry-tool.d drop-in of vt.default_* / vt.color kernel parameters.
 Custom cmdline (iommu, root=, resume=, …) lives elsewhere and is never opened.
-Default removes that colour drop-in only — it does not rewrite Omarchy stock
+Default removes that color drop-in only — it does not rewrite Omarchy stock
 parms. Mockups are illustrative, not WYSIWYG screenshots of a live VT.
 """
 
@@ -687,7 +687,7 @@ def render_mockup(
     draw.rectangle((origin_x, y + 4, origin_x + 14, y + line_h - 6), fill=fg)
 
     if palette.get("is_default"):
-        note = "stock VGA — Default removes omavt colours only"
+        note = "stock VGA — Default removes omavt colors only"
         draw_clipped(origin_x, y + line_h + 8, note, muted, mono_sm)
 
     strip_y = h - 72
@@ -827,7 +827,7 @@ def set_theme(slug: str, *, quiet: bool = False, dry_run: bool = False) -> int:
 
     if slug == DEFAULT_SLUG:
         if dry_run:
-            sys.stdout.write("# default → remove colour drop-in only\n")
+            sys.stdout.write("# default → remove color drop-in only\n")
             existing = read_dropin()
             if existing:
                 sys.stdout.write(existing)
@@ -845,7 +845,7 @@ def set_theme(slug: str, *, quiet: bool = False, dry_run: bool = False) -> int:
         (state / "last-dropin.conf").unlink(missing_ok=True)
 
         if not quiet:
-            note(f"removed {dropin_path()} (colour block only)")
+            note(f"removed {dropin_path()} (color block only)")
             note("custom cmdline / omarchy-defaults left untouched; reboot for cold VT")
         return 0
 
@@ -973,7 +973,7 @@ def install_menu_entry() -> None:
                 "icon": "󰯂",
                 "label": "TTYColors",
                 "aliases": ["ttycolors", "tty-theme", "tty", "colors", "colours", "vt", "console-color", "vtrgb"],
-                "description": "Preview unlock-style TTY mockups and append vt.default_* colours via limine-entry-tool.d (sudo)",
+                "description": "Preview unlock-style TTY mockups and append vt.default_* colors via limine-entry-tool.d (sudo)",
                 "action": menu_action(),
             },
         )
@@ -1052,7 +1052,7 @@ def cmd_show(args: argparse.Namespace) -> int:
         return 1
     palette = palette_from_theme(slug)
     if slug == DEFAULT_SLUG:
-        sys.stdout.write("# default → remove colour drop-in only\n")
+        sys.stdout.write("# default → remove color drop-in only\n")
         return 0
     sys.stdout.write(render_dropin(palette))
     return 0
@@ -1121,7 +1121,7 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument("theme", help="Theme slug or 'default'")
     show.set_defaults(func=cmd_show)
 
-    setter = sub.add_parser("set", help="Write/remove vt colour drop-in (sudo)")
+    setter = sub.add_parser("set", help="Write/remove vt color drop-in (sudo)")
     setter.add_argument("theme", help="Theme slug or 'default'")
     setter.add_argument("--quiet", action="store_true")
     setter.add_argument("--dry-run", action="store_true", help="Print drop-in / removal plan")
